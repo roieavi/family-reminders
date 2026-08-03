@@ -49,7 +49,7 @@ export default function PushSubscribeButton({ token }: { token: string }) {
     <button
       onClick={subscribe}
       disabled={busy || subscribed}
-      className="rounded-full border px-3 py-1 text-sm disabled:opacity-50"
+      className="rounded-full border-2 border-black px-3 py-1 text-sm font-semibold transition hover:bg-lime-100 disabled:opacity-50"
     >
       {subscribed ? "התראות פעילות ✓" : "הפעל התראות בדפדפן"}
     </button>

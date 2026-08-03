@@ -14,8 +14,9 @@ export default async function Home() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-2xl font-semibold">
+        <h1 className="mb-6 text-center text-2xl font-bold">
           תזכורות המשפחה
+          <span className="mx-auto mt-2 block h-1.5 w-12 rounded-full bg-lime-400" />
         </h1>
         {familyExists ? <JoinForm /> : <SetupForm />}
       </div>

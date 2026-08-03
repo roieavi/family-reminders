@@ -78,7 +78,7 @@ export default function Dashboard({
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8">
       <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">שלום {memberName} 👋</h1>
+        <h1 className="text-xl font-bold">שלום {memberName} 👋</h1>
         <PushSubscribeButton token={token} />
       </header>
 
@@ -87,20 +87,20 @@ export default function Dashboard({
       <section className="flex items-center gap-2">
         <button
           onClick={() => setScope("mine")}
-          className={`rounded-full px-3 py-1 text-sm ${scope === "mine" ? "bg-black text-white" : "bg-zinc-100"}`}
+          className={`rounded-full border-2 border-black px-3 py-1 text-sm font-semibold ${scope === "mine" ? "bg-lime-400 text-black" : "bg-white text-black"}`}
         >
           שלי
         </button>
         <button
           onClick={() => setScope("all")}
-          className={`rounded-full px-3 py-1 text-sm ${scope === "all" ? "bg-black text-white" : "bg-zinc-100"}`}
+          className={`rounded-full border-2 border-black px-3 py-1 text-sm font-semibold ${scope === "all" ? "bg-lime-400 text-black" : "bg-white text-black"}`}
         >
           כולם
         </button>
         <div className="flex-1" />
         <button
           onClick={() => setShowAddEvent((v) => !v)}
-          className="rounded bg-black px-3 py-1 text-sm text-white"
+          className="rounded-lg border-2 border-black bg-lime-400 px-3 py-1 text-sm font-semibold text-black transition hover:bg-lime-300"
         >
           + הוסף מועד
         </button>
@@ -139,10 +139,10 @@ export default function Dashboard({
                 />
               </li>
             ) : (
-              <li key={event.id} className="rounded border p-3">
+              <li key={event.id} className="rounded-lg border-2 border-black p-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium">{event.title}</p>
+                    <p className="font-semibold">{event.title}</p>
                     <p className="text-sm text-zinc-500">
                       {new Date(event.event_at).toLocaleString("he-IL", {
                         dateStyle: "medium",
@@ -168,16 +168,16 @@ export default function Dashboard({
                       </p>
                     )}
                   </div>
-                  <div className="flex shrink-0 gap-3">
+                  <div className="flex shrink-0 gap-2">
                     <button
                       onClick={() => setEditingEventId(event.id)}
-                      className="text-sm text-blue-600"
+                      className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-lime-100"
                     >
                       ערוך
                     </button>
                     <button
                       onClick={() => deleteEvent(event.id)}
-                      className="text-sm text-red-500"
+                      className="rounded-lg border-2 border-red-600 px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                       aria-label="מחק מועד"
                     >
                       מחק
@@ -190,12 +190,12 @@ export default function Dashboard({
         </ul>
       )}
 
-      <section className="mt-6 border-t pt-4">
+      <section className="mt-6 border-t-2 border-black pt-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-medium">בני המשפחה</h2>
+          <h2 className="font-bold">בני המשפחה</h2>
           <button
             onClick={() => setShowAddMember((v) => !v)}
-            className="text-sm text-blue-600"
+            className="rounded-lg border-2 border-black px-2 py-1 text-sm font-semibold transition hover:bg-lime-100"
           >
             + הוסף בן משפחה
           </button>
@@ -325,16 +325,16 @@ function EventForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded border p-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-lg border-2 border-black p-3">
       <input
-        className="rounded border px-3 py-2"
+        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
         placeholder="כותרת (למשל: תור לרופא שיניים)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
       />
       <textarea
-        className="rounded border px-3 py-2"
+        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
         placeholder="תיאור (אופציונלי)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -342,14 +342,14 @@ function EventForm({
       <div className="flex gap-2">
         <input
           type="date"
-          className="flex-1 rounded border px-3 py-2"
+          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
           value={eventDate}
           onChange={(e) => setEventDate(e.target.value)}
           required
         />
         <input
           type="time"
-          className="flex-1 rounded border px-3 py-2"
+          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
           value={eventTime}
           onChange={(e) => setEventTime(e.target.value)}
           required
@@ -359,6 +359,7 @@ function EventForm({
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
+          className="accent-lime-500"
           checked={appliesToAll}
           onChange={(e) => setAppliesToAll(e.target.checked)}
         />
@@ -371,6 +372,7 @@ function EventForm({
             <label key={m.id} className="flex items-center gap-1 text-sm">
               <input
                 type="checkbox"
+                className="accent-lime-500"
                 checked={selectedMembers.includes(m.id)}
                 onChange={() => toggleMember(m.id)}
               />
@@ -387,6 +389,7 @@ function EventForm({
             <label key={p.minutes} className="flex items-center gap-1 text-sm">
               <input
                 type="checkbox"
+                className="accent-lime-500"
                 checked={selectedReminders.includes(p.minutes)}
                 onChange={() => toggleReminder(p.minutes)}
               />
@@ -402,14 +405,14 @@ function EventForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-lg border-2 border-black bg-lime-400 px-4 py-2 font-semibold text-black transition hover:bg-lime-300 disabled:opacity-50"
         >
           {submitting ? "שומר..." : "שמור מועד"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded border px-4 py-2 text-sm"
+          className="rounded-lg border-2 border-black px-4 py-2 text-sm font-semibold transition hover:bg-zinc-100"
         >
           ביטול
         </button>
@@ -451,29 +454,32 @@ function AddMemberForm({
   }
 
   return (
-    <div className="mt-3 flex flex-col gap-2 rounded border p-3">
+    <div className="mt-3 flex flex-col gap-2 rounded-lg border-2 border-black p-3">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input
-          className="rounded border px-3 py-2 text-sm"
+          className="rounded-lg border-2 border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
           placeholder="שם בן המשפחה"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
         <input
-          className="rounded border px-3 py-2 text-sm"
+          className="rounded-lg border-2 border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
           placeholder="אימייל (אופציונלי, לגיבוי תזכורות)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" className="rounded bg-black px-3 py-2 text-sm text-white">
+        <button
+          type="submit"
+          className="rounded-lg border-2 border-black bg-lime-400 px-3 py-2 text-sm font-semibold text-black transition hover:bg-lime-300"
+        >
           צור קישור אישי
         </button>
       </form>
       {newLink && (
-        <div className="rounded bg-green-50 p-2 text-sm">
+        <div className="rounded-lg border-2 border-lime-500 bg-lime-50 p-2 text-sm">
           <p>שלח/י את הקישור הזה לבן המשפחה - זו הפעם היחידה שהוא מוצג:</p>
           <p className="mt-1 break-all font-mono text-xs">{newLink}</p>
         </div>
@@ -544,15 +550,15 @@ function MemberRow({
   }
 
   return (
-    <li className="rounded border p-3 text-sm">
+    <li className="rounded-lg border-2 border-black p-3 text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-medium">
+        <span className="font-semibold">
           {member.name}
           {isSelf && " (אני)"}
         </span>
         <input
           type="email"
-          className="min-w-0 flex-1 rounded border px-2 py-1 text-sm"
+          className="min-w-0 flex-1 rounded-lg border-2 border-black px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
           placeholder="אימייל (אופציונלי, לגיבוי תזכורות)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -560,20 +566,20 @@ function MemberRow({
         <button
           onClick={saveEmail}
           disabled={savingEmail}
-          className="text-sm text-blue-600 disabled:opacity-50"
+          className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-lime-100 disabled:opacity-50"
         >
           שמור מייל
         </button>
         <button
           onClick={regenerateToken}
           disabled={regenerating}
-          className="text-sm text-orange-600 disabled:opacity-50"
+          className="rounded-lg border-2 border-orange-600 px-2 py-1 text-xs font-semibold text-orange-600 transition hover:bg-orange-50 disabled:opacity-50"
         >
           קישור חדש
         </button>
       </div>
       {newLink && (
-        <div className="mt-2 rounded bg-green-50 p-2">
+        <div className="mt-2 rounded-lg border-2 border-lime-500 bg-lime-50 p-2">
           <p>הקישור החדש - שלח/י ל{member.name} (זו הפעם היחידה שהוא מוצג):</p>
           <p className="mt-1 break-all font-mono text-xs">{newLink}</p>
         </div>

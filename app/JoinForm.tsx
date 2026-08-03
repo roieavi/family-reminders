@@ -22,13 +22,16 @@ export default function JoinForm() {
       <label className="flex flex-col gap-1 text-sm">
         קוד/קישור אישי
         <input
-          className="rounded border px-3 py-2"
+          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
           value={token}
           onChange={(e) => setToken(e.target.value)}
           placeholder="הדבק כאן"
         />
       </label>
-      <button type="submit" className="rounded bg-black px-4 py-2 text-white">
+      <button
+        type="submit"
+        className="rounded-lg border-2 border-black bg-lime-400 px-4 py-2 font-semibold text-black transition hover:bg-lime-300"
+      >
         כניסה
       </button>
       <p className="text-center text-xs text-zinc-400">
