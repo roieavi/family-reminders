@@ -45,17 +45,21 @@ export async function GET(req: NextRequest) {
       timeStyle: "short",
       timeZone: "Asia/Jerusalem",
     });
-    const body = `${event.title} - ${eventTime}${event.description ? "\n" + event.description : ""}`;
+    const pushBody = `${event.title} - ${eventTime}${event.description ? "\n" + event.description : ""}`;
 
     for (const member of members) {
       if (member.push_subscription) {
         await sendPushNotification(member.push_subscription, {
           title: "תזכורת",
-          body,
+          body: pushBody,
         });
       }
       if (member.email) {
-        await sendReminderEmail(member.email, `תזכורת: ${event.title}`, body);
+        await sendReminderEmail(member.email, {
+          eventTitle: event.title,
+          eventTime,
+          description: event.description,
+        });
       }
     }
 
