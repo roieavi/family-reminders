@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from("members")
-    .select("id, name")
+    .select("id, name, email")
     .eq("family_id", requester.family_id)
     .order("name");
 

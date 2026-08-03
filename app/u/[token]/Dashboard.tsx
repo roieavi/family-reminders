@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { REMINDER_PRESETS } from "@/lib/reminders";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
@@ -8,6 +9,7 @@ import PushSubscribeButton from "./PushSubscribeButton";
 interface MemberSummary {
   id: string;
   name: string;
+  email: string | null;
 }
 
 interface EventItem {
@@ -30,11 +32,13 @@ export default function Dashboard({
   memberId: string;
   memberName: string;
 }) {
+  const router = useRouter();
   const [members, setMembers] = useState<MemberSummary[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [scope, setScope] = useState<"mine" | "all">("mine");
   const [loading, setLoading] = useState(true);
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [showAddMember, setShowAddMember] = useState(false);
 
   const headers = { "Content-Type": "application/json", "x-member-token": token };
@@ -103,13 +107,14 @@ export default function Dashboard({
       </section>
 
       {showAddEvent && (
-        <AddEventForm
+        <EventForm
           headers={headers}
           members={members}
           onDone={() => {
             setShowAddEvent(false);
             refresh();
           }}
+          onCancel={() => setShowAddEvent(false)}
         />
       )}
 
@@ -119,46 +124,69 @@ export default function Dashboard({
         <p className="text-center text-zinc-400">אין מועדים להצגה</p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {visibleEvents.map((event) => (
-            <li key={event.id} className="rounded border p-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-medium">{event.title}</p>
-                  <p className="text-sm text-zinc-500">
-                    {new Date(event.event_at).toLocaleString("he-IL", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                      timeZone: "Asia/Jerusalem",
-                    })}
-                  </p>
-                  {event.description && (
-                    <p className="mt-1 text-sm text-zinc-600">{event.description}</p>
-                  )}
-                  <p className="mt-1 text-xs text-zinc-400">
-                    רלוונטי ל:{" "}
-                    {event.applies_to_all
-                      ? "כולם"
-                      : event.event_members.map((em) => memberName_(em.member_id)).join(", ")}
-                  </p>
-                  {event.reminders.length > 0 && (
-                    <p className="mt-1 text-xs text-zinc-400">
-                      תזכורות:{" "}
-                      {event.reminders
-                        .map((r) => reminderLabel(event.event_at, r.remind_at))
-                        .join(", ")}
+          {visibleEvents.map((event) =>
+            editingEventId === event.id ? (
+              <li key={event.id}>
+                <EventForm
+                  headers={headers}
+                  members={members}
+                  event={event}
+                  onDone={() => {
+                    setEditingEventId(null);
+                    refresh();
+                  }}
+                  onCancel={() => setEditingEventId(null)}
+                />
+              </li>
+            ) : (
+              <li key={event.id} className="rounded border p-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium">{event.title}</p>
+                    <p className="text-sm text-zinc-500">
+                      {new Date(event.event_at).toLocaleString("he-IL", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                        timeZone: "Asia/Jerusalem",
+                      })}
                     </p>
-                  )}
+                    {event.description && (
+                      <p className="mt-1 text-sm text-zinc-600">{event.description}</p>
+                    )}
+                    <p className="mt-1 text-xs text-zinc-400">
+                      רלוונטי ל:{" "}
+                      {event.applies_to_all
+                        ? "כולם"
+                        : event.event_members.map((em) => memberName_(em.member_id)).join(", ")}
+                    </p>
+                    {event.reminders.length > 0 && (
+                      <p className="mt-1 text-xs text-zinc-400">
+                        תזכורות:{" "}
+                        {event.reminders
+                          .map((r) => reminderLabel(event.event_at, r.remind_at))
+                          .join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 gap-3">
+                    <button
+                      onClick={() => setEditingEventId(event.id)}
+                      className="text-sm text-blue-600"
+                    >
+                      ערוך
+                    </button>
+                    <button
+                      onClick={() => deleteEvent(event.id)}
+                      className="text-sm text-red-500"
+                      aria-label="מחק מועד"
+                    >
+                      מחק
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => deleteEvent(event.id)}
-                  className="text-sm text-red-500"
-                  aria-label="מחק מועד"
-                >
-                  מחק
-                </button>
-              </div>
-            </li>
-          ))}
+              </li>
+            )
+          )}
         </ul>
       )}
 
@@ -172,11 +200,22 @@ export default function Dashboard({
             + הוסף בן משפחה
           </button>
         </div>
-        <ul className="mt-2 flex flex-wrap gap-2 text-sm text-zinc-600">
+        <ul className="mt-2 flex flex-col gap-2">
           {members.map((m) => (
-            <li key={m.id} className="rounded-full bg-zinc-100 px-3 py-1">
-              {m.name}
-            </li>
+            <MemberRow
+              key={m.id}
+              member={m}
+              headers={headers}
+              isSelf={m.id === memberId}
+              onEmailSaved={refresh}
+              onTokenRegenerated={(newToken) => {
+                if (m.id === memberId) {
+                  router.push(`/u/${newToken}`);
+                } else {
+                  refresh();
+                }
+              }}
+            />
           ))}
         </ul>
         {showAddMember && (
@@ -192,30 +231,56 @@ export default function Dashboard({
   );
 }
 
-function reminderLabel(eventAt: string, remindAt: string): string {
-  const diffMinutes = Math.round(
-    (new Date(eventAt).getTime() - new Date(remindAt).getTime()) / 60_000
-  );
-  const preset = REMINDER_PRESETS.find((p) => p.minutes === diffMinutes);
-  return preset?.label ?? `${diffMinutes} דקות לפני`;
+function diffMinutes(eventAt: string, remindAt: string): number {
+  return Math.round((new Date(eventAt).getTime() - new Date(remindAt).getTime()) / 60_000);
 }
 
-function AddEventForm({
+function reminderLabel(eventAt: string, remindAt: string): string {
+  const minutes = diffMinutes(eventAt, remindAt);
+  const preset = REMINDER_PRESETS.find((p) => p.minutes === minutes);
+  return preset?.label ?? `${minutes} דקות לפני`;
+}
+
+function toIsraelDateTimeParts(iso: string): { date: string; time: string } {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const map: Record<string, string> = {};
+  for (const p of parts) map[p.type] = p.value;
+  return { date: `${map.year}-${map.month}-${map.day}`, time: `${map.hour}:${map.minute}` };
+}
+
+function EventForm({
   headers,
   members,
+  event,
   onDone,
+  onCancel,
 }: {
   headers: Record<string, string>;
   members: MemberSummary[];
+  event?: EventItem;
   onDone: () => void;
+  onCancel: () => void;
 }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [eventTime, setEventTime] = useState("");
-  const [appliesToAll, setAppliesToAll] = useState(true);
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [selectedReminders, setSelectedReminders] = useState<number[]>([60 * 24]);
+  const initialDateTime = event ? toIsraelDateTimeParts(event.event_at) : null;
+  const [title, setTitle] = useState(event?.title ?? "");
+  const [description, setDescription] = useState(event?.description ?? "");
+  const [eventDate, setEventDate] = useState(initialDateTime?.date ?? "");
+  const [eventTime, setEventTime] = useState(initialDateTime?.time ?? "");
+  const [appliesToAll, setAppliesToAll] = useState(event?.applies_to_all ?? true);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>(
+    event ? event.event_members.map((em) => em.member_id) : []
+  );
+  const [selectedReminders, setSelectedReminders] = useState<number[]>(
+    event ? event.reminders.map((r) => diffMinutes(event.event_at, r.remind_at)) : [60 * 24]
+  );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -236,8 +301,8 @@ function AddEventForm({
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/api/events", {
-        method: "POST",
+      const res = await fetch(event ? `/api/events/${event.id}` : "/api/events", {
+        method: event ? "PATCH" : "POST",
         headers,
         body: JSON.stringify({
           title,
@@ -333,13 +398,22 @@ function AddEventForm({
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
-      >
-        {submitting ? "שומר..." : "שמור מועד"}
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+        >
+          {submitting ? "שומר..." : "שמור מועד"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded border px-4 py-2 text-sm"
+        >
+          ביטול
+        </button>
+      </div>
     </form>
   );
 }
@@ -405,5 +479,105 @@ function AddMemberForm({
         </div>
       )}
     </div>
+  );
+}
+
+function MemberRow({
+  member,
+  headers,
+  isSelf,
+  onEmailSaved,
+  onTokenRegenerated,
+}: {
+  member: MemberSummary;
+  headers: Record<string, string>;
+  isSelf: boolean;
+  onEmailSaved: () => void;
+  onTokenRegenerated: (newToken: string) => void;
+}) {
+  const [email, setEmail] = useState(member.email ?? "");
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [newLink, setNewLink] = useState<string | null>(null);
+
+  async function saveEmail() {
+    setSavingEmail(true);
+    try {
+      await fetch(`/api/members/${member.id}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ email: email || null }),
+      });
+      onEmailSaved();
+    } finally {
+      setSavingEmail(false);
+    }
+  }
+
+  async function regenerateToken() {
+    if (
+      !confirm(
+        isSelf
+          ? "ליצור קישור חדש? הקישור הנוכחי (שאתה משתמש בו עכשיו) יפסיק לעבוד מיד."
+          : `ליצור קישור חדש ל${member.name}? הקישור הישן שלו/שלה יפסיק לעבוד מיד.`
+      )
+    ) {
+      return;
+    }
+    setRegenerating(true);
+    try {
+      const res = await fetch(`/api/members/${member.id}/regenerate-token`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (!res.ok) return;
+      if (isSelf) {
+        onTokenRegenerated(data.token);
+      } else {
+        setNewLink(`${window.location.origin}/u/${data.token}`);
+        onTokenRegenerated(data.token);
+      }
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
+  return (
+    <li className="rounded border p-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-medium">
+          {member.name}
+          {isSelf && " (אני)"}
+        </span>
+        <input
+          type="email"
+          className="min-w-0 flex-1 rounded border px-2 py-1 text-sm"
+          placeholder="אימייל (אופציונלי, לגיבוי תזכורות)"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button
+          onClick={saveEmail}
+          disabled={savingEmail}
+          className="text-sm text-blue-600 disabled:opacity-50"
+        >
+          שמור מייל
+        </button>
+        <button
+          onClick={regenerateToken}
+          disabled={regenerating}
+          className="text-sm text-orange-600 disabled:opacity-50"
+        >
+          קישור חדש
+        </button>
+      </div>
+      {newLink && (
+        <div className="mt-2 rounded bg-green-50 p-2">
+          <p>הקישור החדש - שלח/י ל{member.name} (זו הפעם היחידה שהוא מוצג):</p>
+          <p className="mt-1 break-all font-mono text-xs">{newLink}</p>
+        </div>
+      )}
+    </li>
   );
 }

@@ -1,6 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getMemberFromRequest } from "@/lib/auth";
+import { parseEventInput, setEventRelations } from "@/lib/events";
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const requester = await getMemberFromRequest(req);
+  if (!requester) {
+    return NextResponse.json({ error: "לינק לא תקין" }, { status: 401 });
+  }
+  const { id } = await params;
+
+  const input = parseEventInput(await req.json());
+  if ("error" in input) {
+    return NextResponse.json({ error: input.error }, { status: 400 });
+  }
+
+  const { data: event, error: eventError } = await supabaseAdmin
+    .from("events")
+    .update({
+      title: input.title,
+      description: input.description,
+      event_at: input.eventAt,
+      applies_to_all: input.appliesToAll,
+    })
+    .eq("id", id)
+    .eq("family_id", requester.family_id)
+    .select()
+    .single();
+
+  if (eventError || !event) {
+    return NextResponse.json({ error: eventError?.message ?? "מועד לא נמצא" }, { status: 404 });
+  }
+
+  const relationsError = await setEventRelations(event.id, input);
+  if (relationsError) {
+    return NextResponse.json(relationsError, { status: 500 });
+  }
+
+  return NextResponse.json({ event });
+}
 
 export async function DELETE(
   req: NextRequest,
