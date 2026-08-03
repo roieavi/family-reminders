@@ -48,14 +48,13 @@ export async function GET(req: NextRequest) {
     const body = `${event.title} - ${eventTime}${event.description ? "\n" + event.description : ""}`;
 
     for (const member of members) {
-      let delivered = false;
       if (member.push_subscription) {
-        delivered = await sendPushNotification(member.push_subscription, {
+        await sendPushNotification(member.push_subscription, {
           title: "תזכורת",
           body,
         });
       }
-      if (!delivered && member.email) {
+      if (member.email) {
         await sendReminderEmail(member.email, `תזכורת: ${event.title}`, body);
       }
     }
