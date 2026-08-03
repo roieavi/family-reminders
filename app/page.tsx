@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import SetupForm from "./SetupForm";
 import JoinForm from "./JoinForm";
+import AutoRedirect from "./AutoRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function Home() {
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+      <AutoRedirect />
       <div className="w-full max-w-sm">
         <h1 className="mb-6 text-center text-2xl font-bold">
           תזכורות המשפחה

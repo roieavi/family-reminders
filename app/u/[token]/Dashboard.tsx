@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { REMINDER_PRESETS } from "@/lib/reminders";
+import { MEMBER_TOKEN_KEY } from "@/lib/storage";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
 
@@ -62,6 +63,10 @@ export default function Dashboard({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load on mount
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    localStorage.setItem(MEMBER_TOKEN_KEY, token);
+  }, [token]);
 
   const memberName_ = (id: string) => members.find((m) => m.id === id)?.name ?? "?";
 
