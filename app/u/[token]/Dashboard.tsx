@@ -211,7 +211,8 @@ function AddEventForm({
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [eventAt, setEventAt] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
   const [appliesToAll, setAppliesToAll] = useState(true);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [selectedReminders, setSelectedReminders] = useState<number[]>([60 * 24]);
@@ -241,7 +242,7 @@ function AddEventForm({
         body: JSON.stringify({
           title,
           description,
-          event_at: new Date(eventAt).toISOString(),
+          event_at: new Date(`${eventDate}T${eventTime}`).toISOString(),
           applies_to_all: appliesToAll,
           member_ids: selectedMembers,
           reminder_minutes: selectedReminders,
@@ -273,13 +274,22 @@ function AddEventForm({
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <input
-        type="datetime-local"
-        className="rounded border px-3 py-2"
-        value={eventAt}
-        onChange={(e) => setEventAt(e.target.value)}
-        required
-      />
+      <div className="flex gap-2">
+        <input
+          type="date"
+          className="flex-1 rounded border px-3 py-2"
+          value={eventDate}
+          onChange={(e) => setEventDate(e.target.value)}
+          required
+        />
+        <input
+          type="time"
+          className="flex-1 rounded border px-3 py-2"
+          value={eventTime}
+          onChange={(e) => setEventTime(e.target.value)}
+          required
+        />
+      </div>
 
       <label className="flex items-center gap-2 text-sm">
         <input
