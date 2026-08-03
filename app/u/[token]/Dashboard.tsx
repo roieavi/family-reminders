@@ -40,6 +40,7 @@ export default function Dashboard({
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [showAddMember, setShowAddMember] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
 
   const headers = { "Content-Type": "application/json", "x-member-token": token };
 
@@ -191,40 +192,57 @@ export default function Dashboard({
       )}
 
       <section className="mt-6 border-t-2 border-black pt-4">
-        <div className="flex items-center justify-between">
+        <button
+          onClick={() => setShowMembers((v) => !v)}
+          className="flex w-full items-center justify-between"
+          aria-expanded={showMembers}
+        >
           <h2 className="font-bold">בני המשפחה</h2>
-          <button
-            onClick={() => setShowAddMember((v) => !v)}
-            className="rounded-lg border-2 border-black px-2 py-1 text-sm font-semibold transition hover:bg-lime-100"
+          <span
+            className={`transition-transform ${showMembers ? "-rotate-90" : ""}`}
+            aria-hidden="true"
           >
-            + הוסף בן משפחה
-          </button>
-        </div>
-        <ul className="mt-2 flex flex-col gap-2">
-          {members.map((m) => (
-            <MemberRow
-              key={m.id}
-              member={m}
-              headers={headers}
-              isSelf={m.id === memberId}
-              onEmailSaved={refresh}
-              onTokenRegenerated={(newToken) => {
-                if (m.id === memberId) {
-                  router.push(`/u/${newToken}`);
-                } else {
+            ◂
+          </span>
+        </button>
+
+        {showMembers && (
+          <>
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={() => setShowAddMember((v) => !v)}
+                className="rounded-lg border-2 border-black px-2 py-1 text-sm font-semibold transition hover:bg-lime-100"
+              >
+                + הוסף בן משפחה
+              </button>
+            </div>
+            <ul className="mt-2 flex flex-col gap-2">
+              {members.map((m) => (
+                <MemberRow
+                  key={m.id}
+                  member={m}
+                  headers={headers}
+                  isSelf={m.id === memberId}
+                  onEmailSaved={refresh}
+                  onTokenRegenerated={(newToken) => {
+                    if (m.id === memberId) {
+                      router.push(`/u/${newToken}`);
+                    } else {
+                      refresh();
+                    }
+                  }}
+                />
+              ))}
+            </ul>
+            {showAddMember && (
+              <AddMemberForm
+                headers={headers}
+                onDone={() => {
                   refresh();
-                }
-              }}
-            />
-          ))}
-        </ul>
-        {showAddMember && (
-          <AddMemberForm
-            headers={headers}
-            onDone={() => {
-              refresh();
-            }}
-          />
+                }}
+              />
+            )}
+          </>
         )}
       </section>
     </main>
