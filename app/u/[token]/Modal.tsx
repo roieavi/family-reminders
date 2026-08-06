@@ -1,5 +1,7 @@
 "use client";
 
+import { createPortal } from "react-dom";
+
 export default function Modal({
   onClose,
   title,
@@ -9,7 +11,7 @@ export default function Modal({
   title?: string;
   children: React.ReactNode;
 }) {
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
       onClick={onClose}
@@ -31,6 +33,7 @@ export default function Modal({
         </div>
         <div className="no-scrollbar overflow-y-auto p-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
