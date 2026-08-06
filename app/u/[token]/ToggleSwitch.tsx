@@ -15,7 +15,7 @@ export default function ToggleSwitch({
       onClick={() => onChange(!checked)}
       dir="ltr"
       className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-        checked ? "bg-indigo-600" : "bg-zinc-300"
+        checked ? "bg-indigo-600" : "bg-zinc-300 dark:bg-zinc-600"
       }`}
     >
       <span
