@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { REMINDER_PRESETS } from "@/lib/reminders";
 import { MEMBER_TOKEN_KEY } from "@/lib/storage";
-import { toIsraelDateTimeParts } from "@/lib/israelTime";
+import { toIsraelDateTimeParts, timeOfDayGreeting } from "@/lib/israelTime";
 import { formatCountdown } from "@/lib/countdown";
 import { colorForMember } from "@/lib/memberColors";
 import SearchBar from "./SearchBar";
@@ -52,6 +52,7 @@ export default function Dashboard({
   const [showAddMember, setShowAddMember] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid" | "calendar">("list");
+  const [greeting, setGreeting] = useState("שלום");
 
   const headers = { "Content-Type": "application/json", "x-member-token": token };
 
@@ -78,6 +79,11 @@ export default function Dashboard({
     localStorage.setItem(MEMBER_TOKEN_KEY, token);
   }, [token]);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads current time, must run after mount
+    setGreeting(timeOfDayGreeting());
+  }, []);
+
   const visibleEvents = events.filter((e) => {
     if (scope === "all") return true;
     return e.applies_to_all || e.event_members.some((em) => em.member_id === memberId);
@@ -97,7 +103,9 @@ export default function Dashboard({
         <div className="pointer-events-none absolute -top-10 -left-8 h-32 w-32 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute top-14 -right-6 h-20 w-20 rounded-full bg-white/10" />
         <div className="relative flex items-center justify-between">
-          <h1 className="text-3xl font-extrabold">שלום {memberName} 👋</h1>
+          <h1 className="text-4xl font-extrabold">
+            {greeting}, {memberName}
+          </h1>
           <PushSubscribeButton token={token} />
         </div>
       </header>
@@ -330,7 +338,7 @@ export default function Dashboard({
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => setShowAddMember((v) => !v)}
-                className="rounded-lg border-2 border-black px-2 py-1 text-sm font-semibold transition hover:bg-lime-100"
+                className="rounded-lg border-2 border-black px-2 py-1 text-sm font-semibold transition hover:bg-indigo-50"
               >
                 + הוסף בן משפחה
               </button>
@@ -451,14 +459,14 @@ export function EventForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-lg border-2 border-black p-3">
       <input
-        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         placeholder="כותרת (למשל: תור לרופא שיניים)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
       />
       <textarea
-        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         placeholder="תיאור (אופציונלי)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -466,14 +474,14 @@ export function EventForm({
       <div className="flex gap-2">
         <input
           type="date"
-          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           value={eventDate}
           onChange={(e) => setEventDate(e.target.value)}
           required
         />
         <input
           type="time"
-          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           value={eventTime}
           onChange={(e) => setEventTime(e.target.value)}
           required
@@ -483,7 +491,7 @@ export function EventForm({
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
-          className="accent-lime-500"
+          className="accent-indigo-500"
           checked={appliesToAll}
           onChange={(e) => setAppliesToAll(e.target.checked)}
         />
@@ -496,7 +504,7 @@ export function EventForm({
             <label key={m.id} className="flex items-center gap-1 text-sm">
               <input
                 type="checkbox"
-                className="accent-lime-500"
+                className="accent-indigo-500"
                 checked={selectedMembers.includes(m.id)}
                 onChange={() => toggleMember(m.id)}
               />
@@ -513,7 +521,7 @@ export function EventForm({
             <label key={p.minutes} className="flex items-center gap-1 text-sm">
               <input
                 type="checkbox"
-                className="accent-lime-500"
+                className="accent-indigo-500"
                 checked={selectedReminders.includes(p.minutes)}
                 onChange={() => toggleReminder(p.minutes)}
               />
@@ -529,7 +537,7 @@ export function EventForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg border-2 border-black bg-lime-400 px-4 py-2 font-semibold text-black transition hover:bg-lime-300 disabled:opacity-50"
+          className="rounded-lg border-2 border-black bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
         >
           {submitting ? "שומר..." : "שמור מועד"}
         </button>
@@ -581,14 +589,14 @@ function AddMemberForm({
     <div className="mt-3 flex flex-col gap-2 rounded-lg border-2 border-black p-3">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input
-          className="rounded-lg border-2 border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="rounded-lg border-2 border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           placeholder="שם בן המשפחה"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
         <input
-          className="rounded-lg border-2 border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="rounded-lg border-2 border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           placeholder="אימייל (אופציונלי, לגיבוי תזכורות)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -597,13 +605,13 @@ function AddMemberForm({
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
-          className="rounded-lg border-2 border-black bg-lime-400 px-3 py-2 text-sm font-semibold text-black transition hover:bg-lime-300"
+          className="rounded-lg border-2 border-black bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
         >
           צור קישור אישי
         </button>
       </form>
       {newLink && (
-        <div className="rounded-lg border-2 border-lime-500 bg-lime-50 p-2 text-sm">
+        <div className="rounded-lg border-2 border-indigo-400 bg-indigo-50 p-2 text-sm">
           <p>שלח/י את הקישור הזה לבן המשפחה - זו הפעם היחידה שהוא מוצג:</p>
           <p className="mt-1 break-all font-mono text-xs">{newLink}</p>
         </div>
@@ -682,7 +690,7 @@ function MemberRow({
         </span>
         <input
           type="email"
-          className="min-w-0 flex-1 rounded-lg border-2 border-black px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="min-w-0 flex-1 rounded-lg border-2 border-black px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           placeholder="אימייל (אופציונלי, לגיבוי תזכורות)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -690,7 +698,7 @@ function MemberRow({
         <button
           onClick={saveEmail}
           disabled={savingEmail}
-          className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-lime-100 disabled:opacity-50"
+          className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-indigo-50 disabled:opacity-50"
         >
           שמור מייל
         </button>
@@ -703,7 +711,7 @@ function MemberRow({
         </button>
       </div>
       {newLink && (
-        <div className="mt-2 rounded-lg border-2 border-lime-500 bg-lime-50 p-2">
+        <div className="mt-2 rounded-lg border-2 border-indigo-400 bg-indigo-50 p-2">
           <p>הקישור החדש - שלח/י ל{member.name} (זו הפעם היחידה שהוא מוצג):</p>
           <p className="mt-1 break-all font-mono text-xs">{newLink}</p>
         </div>

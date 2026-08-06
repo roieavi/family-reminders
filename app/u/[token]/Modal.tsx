@@ -20,7 +20,7 @@ export default function Modal({
           <button
             onClick={onClose}
             aria-label="סגור"
-            className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-lime-100"
+            className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-indigo-50"
           >
             ✕ סגור
           </button>

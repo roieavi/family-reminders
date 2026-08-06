@@ -39,7 +39,7 @@ export default function SetupForm() {
       <label className="flex flex-col gap-1 text-sm">
         שם המשפחה
         <input
-          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           value={familyName}
           onChange={(e) => setFamilyName(e.target.value)}
           placeholder="לדוגמה: משפחת כהן"
@@ -48,7 +48,7 @@ export default function SetupForm() {
       <label className="flex flex-col gap-1 text-sm">
         השם שלך
         <input
-          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           value={memberName}
           onChange={(e) => setMemberName(e.target.value)}
           placeholder="השם שלך"
@@ -59,7 +59,7 @@ export default function SetupForm() {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-lg border-2 border-black bg-lime-400 px-4 py-2 font-semibold text-black transition hover:bg-lime-300 disabled:opacity-50"
+        className="rounded-lg border-2 border-black bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
       >
         {loading ? "יוצר..." : "צור את המערכת"}
       </button>

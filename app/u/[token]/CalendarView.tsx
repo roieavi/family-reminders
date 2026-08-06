@@ -69,7 +69,7 @@ export default function CalendarView({
         <button
           onClick={() => goToMonth(-1)}
           aria-label="חודש קודם"
-          className="rounded-lg border-2 border-black px-3 py-1 font-semibold transition hover:bg-lime-100"
+          className="rounded-lg border-2 border-black px-3 py-1 font-semibold transition hover:bg-indigo-50"
         >
           ‹
         </button>
@@ -77,7 +77,7 @@ export default function CalendarView({
         <button
           onClick={() => goToMonth(1)}
           aria-label="חודש הבא"
-          className="rounded-lg border-2 border-black px-3 py-1 font-semibold transition hover:bg-lime-100"
+          className="rounded-lg border-2 border-black px-3 py-1 font-semibold transition hover:bg-indigo-50"
         >
           ›
         </button>
@@ -99,13 +99,13 @@ export default function CalendarView({
             <button
               key={dateKey}
               onClick={() => setPopup({ mode: dayEvents.length > 0 ? "view" : "add", dateKey })}
-              className={`flex aspect-square flex-col items-center justify-center rounded-lg border-2 text-sm transition hover:bg-lime-100 ${
-                isToday ? "border-lime-500" : "border-black"
+              className={`flex aspect-square flex-col items-center justify-center rounded-lg border-2 text-sm transition hover:bg-indigo-50 ${
+                isToday ? "border-indigo-500" : "border-black"
               }`}
             >
               <span>{day}</span>
               {dayEvents.length > 0 && (
-                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-lime-500" aria-hidden="true" />
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
               )}
             </button>
           );

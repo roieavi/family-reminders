@@ -22,7 +22,7 @@ export default function JoinForm() {
       <label className="flex flex-col gap-1 text-sm">
         קוד/קישור אישי
         <input
-          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+          className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           value={token}
           onChange={(e) => setToken(e.target.value)}
           placeholder="הדבק כאן"
@@ -30,7 +30,7 @@ export default function JoinForm() {
       </label>
       <button
         type="submit"
-        className="rounded-lg border-2 border-black bg-lime-400 px-4 py-2 font-semibold text-black transition hover:bg-lime-300"
+        className="rounded-lg border-2 border-black bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700"
       >
         כניסה
       </button>

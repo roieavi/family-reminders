@@ -7,10 +7,10 @@ export interface Countdown {
 }
 
 const BADGE_CLASSES: Record<Countdown["tone"], string> = {
-  today: "bg-rose-500 text-white",
-  tomorrow: "bg-amber-500 text-white",
-  soon: "bg-indigo-500 text-white",
-  later: "bg-blue-500 text-white",
+  today: "bg-rose-600 text-white",
+  tomorrow: "bg-amber-600 text-white",
+  soon: "bg-indigo-600 text-white",
+  later: "bg-blue-700 text-white",
 };
 
 export function formatCountdown(eventAtIso: string): Countdown {

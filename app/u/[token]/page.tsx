@@ -23,7 +23,7 @@ export default async function PersonalPage({
         </p>
         <Link
           href="/"
-          className="rounded-lg border-2 border-black px-4 py-2 text-sm font-semibold transition hover:bg-lime-100"
+          className="rounded-lg border-2 border-black px-4 py-2 text-sm font-semibold transition hover:bg-indigo-50"
         >
           חזרה לעמוד הראשי
         </Link>

@@ -18,7 +18,7 @@ export default async function Home() {
       <div className="w-full max-w-sm">
         <h1 className="mb-6 text-center text-2xl font-bold">
           תזכורות המשפחה
-          <span className="mx-auto mt-2 block h-1.5 w-12 rounded-full bg-lime-400" />
+          <span className="mx-auto mt-2 block h-1.5 w-12 rounded-full bg-indigo-500" />
         </h1>
         {familyExists ? <JoinForm /> : <SetupForm />}
       </div>
