@@ -104,10 +104,14 @@ export default function Dashboard({
       <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-10 pb-20 text-white">
         <div className="pointer-events-none absolute -top-10 -left-8 h-32 w-32 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute top-14 -right-6 h-20 w-20 rounded-full bg-white/10" />
-        <div className="relative flex items-center justify-between">
-          <h1 className="text-4xl font-extrabold">
-            {greeting}, {memberName}
-          </h1>
+        <div className="relative flex items-start justify-between">
+          <div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon-white.png" alt="תזכיר לי" className="mb-2 h-8 w-8" />
+            <h1 className="text-4xl font-extrabold">
+              {greeting}, {memberName}
+            </h1>
+          </div>
           <PushSubscribeButton token={token} />
         </div>
       </header>

@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "מישהו צריך לזכור את זה",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
+    background_color: "#6366f1",
     theme_color: "#4f46e5",
     icons: [
       { src: "/icons/192", sizes: "192x192", type: "image/png" },

@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SPLASH_VISIBLE_MS, SPLASH_FADE_MS } from "@/lib/splash";
 
 export default function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setFading(true), 1000);
-    const removeTimer = setTimeout(() => setVisible(false), 1300);
+    const fadeTimer = setTimeout(() => setFading(true), SPLASH_VISIBLE_MS);
+    const removeTimer = setTimeout(
+      () => setVisible(false),
+      SPLASH_VISIBLE_MS + SPLASH_FADE_MS
+    );
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
