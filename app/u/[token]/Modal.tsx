@@ -2,30 +2,34 @@
 
 export default function Modal({
   onClose,
+  title,
   children,
 }: {
   onClose: () => void;
+  title?: string;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-lg border-2 border-black bg-white p-4"
+        className="animate-sheet-up flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-end">
+        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-4 py-3">
           <button
             onClick={onClose}
             aria-label="סגור"
-            className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-indigo-50"
+            className="text-2xl leading-none text-zinc-400 transition hover:text-zinc-600"
           >
-            ✕ סגור
+            ✕
           </button>
+          {title && <p className="font-semibold">{title}</p>}
+          <span className="w-6" aria-hidden="true" />
         </div>
-        <div className="mt-2">{children}</div>
+        <div className="overflow-y-auto p-4">{children}</div>
       </div>
     </div>
   );

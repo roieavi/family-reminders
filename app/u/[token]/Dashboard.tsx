@@ -10,6 +10,7 @@ import { colorForMember } from "@/lib/memberColors";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
 import CalendarView from "./CalendarView";
+import Modal from "./Modal";
 import GridView from "./GridView";
 import Avatar from "./Avatar";
 import CountdownBadge from "./CountdownBadge";
@@ -196,7 +197,7 @@ export default function Dashboard({
       </section>
 
       {showAddEvent && (
-        <div className="mt-4">
+        <Modal onClose={() => setShowAddEvent(false)} title="הוספת מועד">
           <EventForm
             headers={headers}
             members={members}
@@ -206,7 +207,7 @@ export default function Dashboard({
             }}
             onCancel={() => setShowAddEvent(false)}
           />
-        </div>
+        </Modal>
       )}
 
       <div className="mt-4">
@@ -244,20 +245,7 @@ export default function Dashboard({
                 : members.filter((m) =>
                     event.event_members.some((em) => em.member_id === m.id)
                   );
-              return editingEventId === event.id ? (
-                <li key={event.id}>
-                  <EventForm
-                    headers={headers}
-                    members={members}
-                    event={event}
-                    onDone={() => {
-                      setEditingEventId(null);
-                      refresh();
-                    }}
-                    onCancel={() => setEditingEventId(null)}
-                  />
-                </li>
-              ) : (
+              return (
                 <li key={event.id} className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -317,6 +305,26 @@ export default function Dashboard({
           </ul>
         )}
       </div>
+
+      {editingEventId &&
+        (() => {
+          const editingEvent = visibleEvents.find((e) => e.id === editingEventId);
+          if (!editingEvent) return null;
+          return (
+            <Modal onClose={() => setEditingEventId(null)} title="עריכת מועד">
+              <EventForm
+                headers={headers}
+                members={members}
+                event={editingEvent}
+                onDone={() => {
+                  setEditingEventId(null);
+                  refresh();
+                }}
+                onCancel={() => setEditingEventId(null)}
+              />
+            </Modal>
+          );
+        })()}
 
       <section className="mt-6 border-t-2 border-black pt-4">
         <button
@@ -456,36 +464,54 @@ export function EventForm({
     }
   }
 
+  const fieldLabel = "block text-xs font-semibold tracking-wide text-zinc-400";
+  const fieldInput =
+    "w-full border-b-2 border-zinc-200 bg-transparent py-2 focus:border-indigo-500 focus:outline-none";
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-lg border-2 border-black p-3">
-      <input
-        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        placeholder="כותרת (למשל: תור לרופא שיניים)"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      />
-      <textarea
-        className="rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        placeholder="תיאור (אופציונלי)"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <div className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <label className="flex flex-col gap-1">
+        <span className={fieldLabel}>כותרת</span>
         <input
-          type="date"
-          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          value={eventDate}
-          onChange={(e) => setEventDate(e.target.value)}
+          className={fieldInput}
+          placeholder="למשל: תור לרופא שיניים"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <input
-          type="time"
-          className="flex-1 rounded-lg border-2 border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          value={eventTime}
-          onChange={(e) => setEventTime(e.target.value)}
-          required
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className={fieldLabel}>תיאור</span>
+        <textarea
+          className={fieldInput}
+          placeholder="אופציונלי"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
+      </label>
+
+      <div className="flex gap-3">
+        <label className="flex flex-1 flex-col gap-1">
+          <span className={fieldLabel}>תאריך</span>
+          <input
+            type="date"
+            className={fieldInput}
+            value={eventDate}
+            onChange={(e) => setEventDate(e.target.value)}
+            required
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1">
+          <span className={fieldLabel}>שעה</span>
+          <input
+            type="time"
+            className={fieldInput}
+            value={eventTime}
+            onChange={(e) => setEventTime(e.target.value)}
+            required
+          />
+        </label>
       </div>
 
       <label className="flex items-center gap-2 text-sm">
@@ -515,7 +541,7 @@ export function EventForm({
       )}
 
       <div>
-        <p className="mb-1 text-sm text-zinc-500">תזכורות</p>
+        <p className={`mb-1 ${fieldLabel}`}>תזכורות</p>
         <div className="flex flex-wrap gap-2">
           {REMINDER_PRESETS.map((p) => (
             <label key={p.minutes} className="flex items-center gap-1 text-sm">
@@ -533,18 +559,18 @@ export function EventForm({
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg border-2 border-black bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+          className="w-full rounded-full bg-gradient-to-l from-indigo-600 to-violet-600 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? "שומר..." : "שמור מועד"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border-2 border-black px-4 py-2 text-sm font-semibold transition hover:bg-zinc-100"
+          className="w-full py-1 text-sm font-semibold text-zinc-400 transition hover:text-zinc-600"
         >
           ביטול
         </button>

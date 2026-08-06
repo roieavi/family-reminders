@@ -113,10 +113,10 @@ export default function CalendarView({
       </div>
 
       {popup?.mode === "view" && (
-        <Modal onClose={() => setPopup(null)}>
+        <Modal onClose={() => setPopup(null)} title="מועדים">
           <div className="flex flex-col gap-3">
             {popupEvents.map((event) => (
-              <div key={event.id} className="border-b-2 border-black pb-3 last:border-b-0 last:pb-0">
+              <div key={event.id} className="border-b border-zinc-100 pb-3 last:border-b-0 last:pb-0">
                 <p className="font-semibold">{event.title}</p>
                 <p className="text-sm text-zinc-500">
                   {new Date(event.event_at).toLocaleString("he-IL", {
@@ -149,7 +149,7 @@ export default function CalendarView({
       )}
 
       {popup?.mode === "add" && (
-        <Modal onClose={() => setPopup(null)}>
+        <Modal onClose={() => setPopup(null)} title="הוספת מועד">
           <EventForm
             headers={headers}
             members={members}

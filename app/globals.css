@@ -23,3 +23,16 @@ body {
   color: var(--foreground);
   font-family: var(--font-heebo), Arial, Helvetica, sans-serif;
 }
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-up 0.25s ease-out;
+}

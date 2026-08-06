@@ -77,7 +77,7 @@ export default function GridView({
       })}
 
       {editingEvent && (
-        <Modal onClose={() => setEditingId(null)}>
+        <Modal onClose={() => setEditingId(null)} title="עריכת מועד">
           <EventForm
             headers={headers}
             members={members}
