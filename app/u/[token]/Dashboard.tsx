@@ -4,9 +4,16 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { REMINDER_PRESETS } from "@/lib/reminders";
 import { MEMBER_TOKEN_KEY } from "@/lib/storage";
+import { toIsraelDateTimeParts } from "@/lib/israelTime";
+import { formatCountdown, countdownClasses } from "@/lib/countdown";
+import { colorForMember } from "@/lib/memberColors";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
 import CalendarView from "./CalendarView";
+import GridView from "./GridView";
+import Avatar from "./Avatar";
+
+export { toIsraelDateTimeParts };
 
 export interface MemberSummary {
   id: string;
@@ -43,7 +50,7 @@ export default function Dashboard({
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
-  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  const [viewMode, setViewMode] = useState<"list" | "grid" | "calendar">("list");
 
   const headers = { "Content-Type": "application/json", "x-member-token": token };
 
@@ -70,12 +77,12 @@ export default function Dashboard({
     localStorage.setItem(MEMBER_TOKEN_KEY, token);
   }, [token]);
 
-  const memberName_ = (id: string) => members.find((m) => m.id === id)?.name ?? "?";
-
   const visibleEvents = events.filter((e) => {
     if (scope === "all") return true;
     return e.applies_to_all || e.event_members.some((em) => em.member_id === memberId);
   });
+
+  const nextEvent = visibleEvents[0] ?? null;
 
   async function deleteEvent(id: string) {
     if (!confirm("למחוק את המועד?")) return;
@@ -84,24 +91,55 @@ export default function Dashboard({
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8">
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">שלום {memberName} 👋</h1>
-        <PushSubscribeButton token={token} />
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pb-8">
+      <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-6 pb-14 text-white">
+        <div className="pointer-events-none absolute -top-10 -left-8 h-32 w-32 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute top-14 -right-6 h-20 w-20 rounded-full bg-white/10" />
+        <div className="relative flex items-center justify-between">
+          <h1 className="text-xl font-bold">שלום {memberName} 👋</h1>
+          <PushSubscribeButton token={token} />
+        </div>
       </header>
 
-      <SearchBar token={token} />
+      <div className="relative z-10 -mt-10 rounded-2xl bg-white p-4 shadow-lg">
+        <p className="text-xs font-semibold text-zinc-400">האירוע הקרוב</p>
+        {nextEvent ? (
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <div>
+              <p className="font-semibold">{nextEvent.title}</p>
+              <p className="text-sm text-zinc-500">
+                {new Date(nextEvent.event_at).toLocaleString("he-IL", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                  timeZone: "Asia/Jerusalem",
+                })}
+              </p>
+            </div>
+            <span
+              className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${countdownClasses(formatCountdown(nextEvent.event_at).tone)}`}
+            >
+              {formatCountdown(nextEvent.event_at).label}
+            </span>
+          </div>
+        ) : (
+          <p className="mt-1 text-sm text-zinc-400">אין מועדים קרובים</p>
+        )}
+      </div>
 
-      <section className="flex items-center gap-2">
+      <div className="mt-4">
+        <SearchBar token={token} />
+      </div>
+
+      <section className="mt-4 flex items-center gap-2">
         <button
           onClick={() => setScope("mine")}
-          className={`rounded-full border-2 border-black px-3 py-1 text-sm font-semibold ${scope === "mine" ? "bg-lime-400 text-black" : "bg-white text-black"}`}
+          className={`rounded-full px-3 py-1 text-sm font-semibold transition ${scope === "mine" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
         >
           שלי
         </button>
         <button
           onClick={() => setScope("all")}
-          className={`rounded-full border-2 border-black px-3 py-1 text-sm font-semibold ${scope === "all" ? "bg-lime-400 text-black" : "bg-white text-black"}`}
+          className={`rounded-full px-3 py-1 text-sm font-semibold transition ${scope === "all" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
         >
           כולם
         </button>
@@ -109,7 +147,7 @@ export default function Dashboard({
           onClick={() => setViewMode("list")}
           aria-label="תצוגת רשימה"
           aria-pressed={viewMode === "list"}
-          className={`rounded-lg border-2 border-black p-1.5 ${viewMode === "list" ? "bg-lime-400" : "bg-white"}`}
+          className={`rounded-lg p-1.5 transition ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="4" y1="6" x2="20" y2="6" />
@@ -118,10 +156,23 @@ export default function Dashboard({
           </svg>
         </button>
         <button
+          onClick={() => setViewMode("grid")}
+          aria-label="תצוגת קוביות"
+          aria-pressed={viewMode === "grid"}
+          className={`rounded-lg p-1.5 transition ${viewMode === "grid" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="8" height="8" rx="1.5" />
+            <rect x="13" y="3" width="8" height="8" rx="1.5" />
+            <rect x="3" y="13" width="8" height="8" rx="1.5" />
+            <rect x="13" y="13" width="8" height="8" rx="1.5" />
+          </svg>
+        </button>
+        <button
           onClick={() => setViewMode("calendar")}
           aria-label="תצוגת לוח שנה"
           aria-pressed={viewMode === "calendar"}
-          className={`rounded-lg border-2 border-black p-1.5 ${viewMode === "calendar" ? "bg-lime-400" : "bg-white"}`}
+          className={`rounded-lg p-1.5 transition ${viewMode === "calendar" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -133,102 +184,136 @@ export default function Dashboard({
         <div className="flex-1" />
         <button
           onClick={() => setShowAddEvent((v) => !v)}
-          className="rounded-lg border-2 border-black bg-lime-400 px-3 py-1 text-sm font-semibold text-black transition hover:bg-lime-300"
+          className="rounded-lg bg-indigo-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-indigo-700"
         >
           + הוסף מועד
         </button>
       </section>
 
       {showAddEvent && (
-        <EventForm
-          headers={headers}
-          members={members}
-          onDone={() => {
-            setShowAddEvent(false);
-            refresh();
-          }}
-          onCancel={() => setShowAddEvent(false)}
-        />
+        <div className="mt-4">
+          <EventForm
+            headers={headers}
+            members={members}
+            onDone={() => {
+              setShowAddEvent(false);
+              refresh();
+            }}
+            onCancel={() => setShowAddEvent(false)}
+          />
+        </div>
       )}
 
-      {viewMode === "calendar" ? (
-        <CalendarView
-          events={visibleEvents}
-          members={members}
-          headers={headers}
-          onRefresh={refresh}
-        />
-      ) : loading ? (
-        <p className="text-center text-zinc-400">טוען...</p>
-      ) : visibleEvents.length === 0 ? (
-        <p className="text-center text-zinc-400">אין מועדים להצגה</p>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {visibleEvents.map((event) =>
-            editingEventId === event.id ? (
-              <li key={event.id}>
-                <EventForm
-                  headers={headers}
-                  members={members}
-                  event={event}
-                  onDone={() => {
-                    setEditingEventId(null);
-                    refresh();
-                  }}
-                  onCancel={() => setEditingEventId(null)}
-                />
-              </li>
-            ) : (
-              <li key={event.id} className="rounded-lg border-2 border-black p-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">{event.title}</p>
-                    <p className="text-sm text-zinc-500">
-                      {new Date(event.event_at).toLocaleString("he-IL", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                        timeZone: "Asia/Jerusalem",
-                      })}
-                    </p>
-                    {event.description && (
-                      <p className="mt-1 text-sm text-zinc-600">{event.description}</p>
-                    )}
-                    <p className="mt-1 text-xs text-zinc-400">
-                      רלוונטי ל:{" "}
-                      {event.applies_to_all
-                        ? "כולם"
-                        : event.event_members.map((em) => memberName_(em.member_id)).join(", ")}
-                    </p>
-                    {event.reminders.length > 0 && (
-                      <p className="mt-1 text-xs text-zinc-400">
-                        תזכורות:{" "}
-                        {event.reminders
-                          .map((r) => reminderLabel(event.event_at, r.remind_at))
-                          .join(", ")}
+      <div className="mt-4">
+        {viewMode === "calendar" ? (
+          <CalendarView
+            events={visibleEvents}
+            members={members}
+            headers={headers}
+            onRefresh={refresh}
+          />
+        ) : viewMode === "grid" ? (
+          loading ? (
+            <p className="text-center text-zinc-400">טוען...</p>
+          ) : visibleEvents.length === 0 ? (
+            <p className="text-center text-zinc-400">אין מועדים להצגה</p>
+          ) : (
+            <GridView
+              events={visibleEvents}
+              members={members}
+              headers={headers}
+              onRefresh={refresh}
+              onDelete={deleteEvent}
+            />
+          )
+        ) : loading ? (
+          <p className="text-center text-zinc-400">טוען...</p>
+        ) : visibleEvents.length === 0 ? (
+          <p className="text-center text-zinc-400">אין מועדים להצגה</p>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {visibleEvents.map((event) => {
+              const countdown = formatCountdown(event.event_at);
+              const relevantMembers = event.applies_to_all
+                ? members
+                : members.filter((m) =>
+                    event.event_members.some((em) => em.member_id === m.id)
+                  );
+              return editingEventId === event.id ? (
+                <li key={event.id}>
+                  <EventForm
+                    headers={headers}
+                    members={members}
+                    event={event}
+                    onDone={() => {
+                      setEditingEventId(null);
+                      refresh();
+                    }}
+                    onCancel={() => setEditingEventId(null)}
+                  />
+                </li>
+              ) : (
+                <li key={event.id} className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${countdownClasses(countdown.tone)}`}
+                      >
+                        {countdown.label}
+                      </span>
+                      <p className="mt-1 font-semibold">{event.title}</p>
+                      <p className="text-sm text-zinc-500">
+                        {new Date(event.event_at).toLocaleString("he-IL", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                          timeZone: "Asia/Jerusalem",
+                        })}
                       </p>
-                    )}
+                      {event.description && (
+                        <p className="mt-1 text-sm text-zinc-600">{event.description}</p>
+                      )}
+                      {event.reminders.length > 0 && (
+                        <p className="mt-1 text-xs text-zinc-400">
+                          תזכורות:{" "}
+                          {event.reminders
+                            .map((r) => reminderLabel(event.event_at, r.remind_at))
+                            .join(", ")}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 -space-x-2">
+                      {event.applies_to_all ? (
+                        <span className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500">
+                          כולם
+                        </span>
+                      ) : (
+                        relevantMembers.map((m) => (
+                          <Avatar key={m.id} name={m.name} color={colorForMember(members, m.id)} size="sm" ring />
+                        ))
+                      )}
+                    </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="mt-3 flex justify-end gap-3">
                     <button
                       onClick={() => setEditingEventId(event.id)}
-                      className="rounded-lg border-2 border-black px-2 py-1 text-xs font-semibold transition hover:bg-lime-100"
+                      className="text-xs font-semibold text-indigo-600 transition hover:text-indigo-800"
                     >
                       ערוך
                     </button>
                     <button
                       onClick={() => deleteEvent(event.id)}
-                      className="rounded-lg border-2 border-red-600 px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      className="text-xs font-semibold text-red-500 transition hover:text-red-700"
                       aria-label="מחק מועד"
                     >
                       מחק
                     </button>
                   </div>
-                </div>
-              </li>
-            )
-          )}
-        </ul>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
 
       <section className="mt-6 border-t-2 border-black pt-4">
         <button
@@ -296,21 +381,6 @@ export function reminderLabel(eventAt: string, remindAt: string): string {
   const minutes = diffMinutes(eventAt, remindAt);
   const preset = REMINDER_PRESETS.find((p) => p.minutes === minutes);
   return preset?.label ?? `${minutes} דקות לפני`;
-}
-
-export function toIsraelDateTimeParts(iso: string): { date: string; time: string } {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Jerusalem",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date(iso));
-  const map: Record<string, string> = {};
-  for (const p of parts) map[p.type] = p.value;
-  return { date: `${map.year}-${map.month}-${map.day}`, time: `${map.hour}:${map.minute}` };
 }
 
 export function EventForm({
