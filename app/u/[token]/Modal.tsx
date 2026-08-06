@@ -29,7 +29,7 @@ export default function Modal({
           {title && <p className="font-semibold">{title}</p>}
           <span className="w-6" aria-hidden="true" />
         </div>
-        <div className="overflow-y-auto p-4">{children}</div>
+        <div className="no-scrollbar overflow-y-auto p-4">{children}</div>
       </div>
     </div>
   );

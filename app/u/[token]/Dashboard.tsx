@@ -14,6 +14,7 @@ import Modal from "./Modal";
 import GridView from "./GridView";
 import Avatar from "./Avatar";
 import CountdownBadge from "./CountdownBadge";
+import ToggleSwitch from "./ToggleSwitch";
 
 export { toIsraelDateTimeParts };
 
@@ -421,6 +422,9 @@ export function EventForm({
   const [selectedReminders, setSelectedReminders] = useState<number[]>(
     event ? event.reminders.map((r) => diffMinutes(event.event_at, r.remind_at)) : [60 * 24]
   );
+  const [remindersEnabled, setRemindersEnabled] = useState(
+    event ? event.reminders.length > 0 : false
+  );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -450,7 +454,7 @@ export function EventForm({
           event_at: new Date(`${eventDate}T${eventTime}`).toISOString(),
           applies_to_all: appliesToAll,
           member_ids: selectedMembers,
-          reminder_minutes: selectedReminders,
+          reminder_minutes: remindersEnabled ? selectedReminders : [],
         }),
       });
       const data = await res.json();
@@ -514,46 +518,49 @@ export function EventForm({
         </label>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          className="accent-indigo-500"
-          checked={appliesToAll}
-          onChange={(e) => setAppliesToAll(e.target.checked)}
-        />
-        רלוונטי לכולם
-      </label>
-
-      {!appliesToAll && (
-        <div className="flex flex-wrap gap-2">
-          {members.map((m) => (
-            <label key={m.id} className="flex items-center gap-1 text-sm">
-              <input
-                type="checkbox"
-                className="accent-indigo-500"
-                checked={selectedMembers.includes(m.id)}
-                onChange={() => toggleMember(m.id)}
-              />
-              {m.name}
-            </label>
-          ))}
+      <div>
+        <p className={`mb-1 ${fieldLabel}`}>שיוך</p>
+        <div className="overflow-hidden rounded-xl border border-zinc-100">
+          <div className="flex items-center justify-between px-3 py-2.5">
+            <span className="text-sm">רלוונטי לכולם</span>
+            <ToggleSwitch checked={appliesToAll} onChange={setAppliesToAll} />
+          </div>
+          {!appliesToAll &&
+            members.map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center justify-between border-t border-zinc-100 px-3 py-2.5"
+              >
+                <span className="text-sm">{m.name}</span>
+                <ToggleSwitch
+                  checked={selectedMembers.includes(m.id)}
+                  onChange={() => toggleMember(m.id)}
+                />
+              </div>
+            ))}
         </div>
-      )}
+      </div>
 
       <div>
-        <p className={`mb-1 ${fieldLabel}`}>תזכורות</p>
-        <div className="flex flex-wrap gap-2">
-          {REMINDER_PRESETS.map((p) => (
-            <label key={p.minutes} className="flex items-center gap-1 text-sm">
-              <input
-                type="checkbox"
-                className="accent-indigo-500"
-                checked={selectedReminders.includes(p.minutes)}
-                onChange={() => toggleReminder(p.minutes)}
-              />
-              {p.label}
-            </label>
-          ))}
+        <p className={`mb-1 ${fieldLabel}`}>תזכורת</p>
+        <div className="overflow-hidden rounded-xl border border-zinc-100">
+          <div className="flex items-center justify-between px-3 py-2.5">
+            <span className="text-sm">תזכורת</span>
+            <ToggleSwitch checked={remindersEnabled} onChange={setRemindersEnabled} />
+          </div>
+          {remindersEnabled &&
+            REMINDER_PRESETS.map((p) => (
+              <div
+                key={p.minutes}
+                className="flex items-center justify-between border-t border-zinc-100 px-3 py-2.5"
+              >
+                <span className="text-sm">{p.label}</span>
+                <ToggleSwitch
+                  checked={selectedReminders.includes(p.minutes)}
+                  onChange={() => toggleReminder(p.minutes)}
+                />
+              </div>
+            ))}
         </div>
       </div>
 

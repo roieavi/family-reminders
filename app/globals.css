@@ -36,3 +36,12 @@ body {
 .animate-sheet-up {
   animation: sheet-up 0.25s ease-out;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
