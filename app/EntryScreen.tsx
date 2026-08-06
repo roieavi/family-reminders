@@ -41,7 +41,7 @@ export default function EntryScreen({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-full-white.png" alt="תזכיר לי" className="w-48 shrink-0" />
       {showForm && (
-        <div className="w-full max-w-sm animate-fade-in rounded-2xl border-2 border-black bg-white p-6">
+        <div className="w-full max-w-sm animate-fade-in rounded-2xl border-2 border-black bg-white p-6 dark:border-zinc-300 dark:bg-zinc-800">
           {familyExists ? <JoinForm /> : <SetupForm />}
         </div>
       )}
