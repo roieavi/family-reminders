@@ -157,13 +157,13 @@ export default function Dashboard({
       <section className="mt-4 flex items-center gap-2">
         <button
           onClick={() => setScope("mine")}
-          className={`rounded-full px-3 py-1 text-sm font-semibold transition ${scope === "mine" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
+          className={`rounded-full px-3 py-1 text-sm font-semibold transition ${scope === "mine" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"}`}
         >
           שלי
         </button>
         <button
           onClick={() => setScope("all")}
-          className={`rounded-full px-3 py-1 text-sm font-semibold transition ${scope === "all" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
+          className={`rounded-full px-3 py-1 text-sm font-semibold transition ${scope === "all" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"}`}
         >
           כולם
         </button>
@@ -171,7 +171,7 @@ export default function Dashboard({
           onClick={() => setViewMode("list")}
           aria-label="תצוגת רשימה"
           aria-pressed={viewMode === "list"}
-          className={`rounded-lg p-1.5 transition ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
+          className={`rounded-lg p-1.5 transition ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="4" y1="6" x2="20" y2="6" />
@@ -183,7 +183,7 @@ export default function Dashboard({
           onClick={() => setViewMode("grid")}
           aria-label="תצוגת קוביות"
           aria-pressed={viewMode === "grid"}
-          className={`rounded-lg p-1.5 transition ${viewMode === "grid" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
+          className={`rounded-lg p-1.5 transition ${viewMode === "grid" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="8" height="8" rx="1.5" />
@@ -196,7 +196,7 @@ export default function Dashboard({
           onClick={() => setViewMode("calendar")}
           aria-label="תצוגת לוח שנה"
           aria-pressed={viewMode === "calendar"}
-          className={`rounded-lg p-1.5 transition ${viewMode === "calendar" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600"}`}
+          className={`rounded-lg p-1.5 transition ${viewMode === "calendar" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -291,7 +291,7 @@ export default function Dashboard({
                       <CountdownBadge countdown={countdown} size="sm" />
                       <div className="flex -space-x-2">
                         {event.applies_to_all ? (
-                          <span className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500">
+                          <span className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500 dark:bg-zinc-700 dark:text-zinc-300">
                             כולם
                           </span>
                         ) : (
