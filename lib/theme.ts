@@ -4,12 +4,18 @@ export type Theme = "light" | "dark";
 
 export function getStoredTheme(): Theme {
   if (typeof window === "undefined") return "light";
-  return localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+  } catch (e) {
+    return "light";
+  }
 }
 
 export function applyTheme(theme: Theme): void {
   document.documentElement.classList.toggle("dark", theme === "dark");
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (e) {}
 }
 
 // Runs before hydration (see app/layout.tsx) so a user who previously chose
