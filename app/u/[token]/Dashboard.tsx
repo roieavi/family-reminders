@@ -15,6 +15,7 @@ import GridView from "./GridView";
 import Avatar from "./Avatar";
 import CountdownBadge from "./CountdownBadge";
 import ToggleSwitch from "./ToggleSwitch";
+import SideMenu from "./SideMenu";
 
 export { toIsraelDateTimeParts };
 
@@ -100,14 +101,26 @@ export default function Dashboard({
   }
 
   return (
+    <SideMenu>
+      {({ open }) => (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pb-8">
       <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-10 pb-20 text-white">
         <div className="pointer-events-none absolute -top-10 -left-8 h-32 w-32 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute top-14 -right-6 h-20 w-20 rounded-full bg-white/10" />
         <div className="relative flex items-start justify-between">
           <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon-white.png" alt="תזכיר לי" className="mb-2 h-8 w-8" />
+            <button
+              type="button"
+              onClick={open}
+              aria-label="פתח תפריט"
+              className="mb-2 flex h-8 w-8 items-center justify-center"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            </button>
             <h1 className="text-4xl font-extrabold">
               {greeting}, {memberName}
             </h1>
@@ -386,6 +399,8 @@ export default function Dashboard({
         )}
       </section>
     </main>
+      )}
+    </SideMenu>
   );
 }
 
