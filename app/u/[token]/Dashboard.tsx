@@ -6,14 +6,15 @@ import { REMINDER_PRESETS } from "@/lib/reminders";
 import { MEMBER_TOKEN_KEY } from "@/lib/storage";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
+import CalendarView from "./CalendarView";
 
-interface MemberSummary {
+export interface MemberSummary {
   id: string;
   name: string;
   email: string | null;
 }
 
-interface EventItem {
+export interface EventItem {
   id: string;
   title: string;
   description: string | null;
@@ -42,6 +43,7 @@ export default function Dashboard({
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
 
   const headers = { "Content-Type": "application/json", "x-member-token": token };
 
@@ -103,6 +105,31 @@ export default function Dashboard({
         >
           כולם
         </button>
+        <button
+          onClick={() => setViewMode("list")}
+          aria-label="תצוגת רשימה"
+          aria-pressed={viewMode === "list"}
+          className={`rounded-lg border-2 border-black p-1.5 ${viewMode === "list" ? "bg-lime-400" : "bg-white"}`}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+        <button
+          onClick={() => setViewMode("calendar")}
+          aria-label="תצוגת לוח שנה"
+          aria-pressed={viewMode === "calendar"}
+          className={`rounded-lg border-2 border-black p-1.5 ${viewMode === "calendar" ? "bg-lime-400" : "bg-white"}`}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+            <line x1="8" y1="3" x2="8" y2="7" />
+            <line x1="16" y1="3" x2="16" y2="7" />
+          </svg>
+        </button>
         <div className="flex-1" />
         <button
           onClick={() => setShowAddEvent((v) => !v)}
@@ -124,7 +151,14 @@ export default function Dashboard({
         />
       )}
 
-      {loading ? (
+      {viewMode === "calendar" ? (
+        <CalendarView
+          events={visibleEvents}
+          members={members}
+          headers={headers}
+          onRefresh={refresh}
+        />
+      ) : loading ? (
         <p className="text-center text-zinc-400">טוען...</p>
       ) : visibleEvents.length === 0 ? (
         <p className="text-center text-zinc-400">אין מועדים להצגה</p>
@@ -258,13 +292,13 @@ function diffMinutes(eventAt: string, remindAt: string): number {
   return Math.round((new Date(eventAt).getTime() - new Date(remindAt).getTime()) / 60_000);
 }
 
-function reminderLabel(eventAt: string, remindAt: string): string {
+export function reminderLabel(eventAt: string, remindAt: string): string {
   const minutes = diffMinutes(eventAt, remindAt);
   const preset = REMINDER_PRESETS.find((p) => p.minutes === minutes);
   return preset?.label ?? `${minutes} דקות לפני`;
 }
 
-function toIsraelDateTimeParts(iso: string): { date: string; time: string } {
+export function toIsraelDateTimeParts(iso: string): { date: string; time: string } {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Jerusalem",
     year: "numeric",
@@ -279,23 +313,25 @@ function toIsraelDateTimeParts(iso: string): { date: string; time: string } {
   return { date: `${map.year}-${map.month}-${map.day}`, time: `${map.hour}:${map.minute}` };
 }
 
-function EventForm({
+export function EventForm({
   headers,
   members,
   event,
+  initialDate,
   onDone,
   onCancel,
 }: {
   headers: Record<string, string>;
   members: MemberSummary[];
   event?: EventItem;
+  initialDate?: string;
   onDone: () => void;
   onCancel: () => void;
 }) {
   const initialDateTime = event ? toIsraelDateTimeParts(event.event_at) : null;
   const [title, setTitle] = useState(event?.title ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
-  const [eventDate, setEventDate] = useState(initialDateTime?.date ?? "");
+  const [eventDate, setEventDate] = useState(initialDateTime?.date ?? initialDate ?? "");
   const [eventTime, setEventTime] = useState(initialDateTime?.time ?? "");
   const [appliesToAll, setAppliesToAll] = useState(event?.applies_to_all ?? true);
   const [selectedMembers, setSelectedMembers] = useState<string[]>(
