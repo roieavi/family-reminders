@@ -17,14 +17,14 @@ export default function Modal({
       onClick={onClose}
     >
       <div
-        className="animate-sheet-up flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white"
+        className="animate-sheet-up flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white dark:bg-zinc-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-4 py-3">
+        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-700">
           <button
             onClick={onClose}
             aria-label="סגור"
-            className="text-2xl leading-none text-zinc-400 transition hover:text-zinc-600"
+            className="text-2xl leading-none text-zinc-400 transition hover:text-zinc-600 dark:hover:text-zinc-200"
           >
             ✕
           </button>

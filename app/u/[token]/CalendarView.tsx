@@ -69,7 +69,7 @@ export default function CalendarView({
         <button
           onClick={() => goToMonth(-1)}
           aria-label="חודש קודם"
-          className="rounded-full px-3 py-1 font-semibold text-zinc-600 transition hover:bg-indigo-50"
+          className="rounded-full px-3 py-1 font-semibold text-zinc-600 transition hover:bg-indigo-50 dark:text-zinc-300 dark:hover:bg-zinc-700"
         >
           ‹
         </button>
@@ -77,7 +77,7 @@ export default function CalendarView({
         <button
           onClick={() => goToMonth(1)}
           aria-label="חודש הבא"
-          className="rounded-full px-3 py-1 font-semibold text-zinc-600 transition hover:bg-indigo-50"
+          className="rounded-full px-3 py-1 font-semibold text-zinc-600 transition hover:bg-indigo-50 dark:text-zinc-300 dark:hover:bg-zinc-700"
         >
           ›
         </button>
@@ -102,7 +102,7 @@ export default function CalendarView({
               className={`flex aspect-square flex-col items-center justify-center rounded-full text-sm transition ${
                 isToday
                   ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "text-zinc-700 hover:bg-indigo-50"
+                  : "text-zinc-700 hover:bg-indigo-50 dark:text-zinc-300 dark:hover:bg-zinc-700"
               }`}
             >
               <span>{day}</span>
@@ -121,7 +121,7 @@ export default function CalendarView({
         <Modal onClose={() => setPopup(null)} title="מועדים">
           <div className="flex flex-col gap-3">
             {popupEvents.map((event) => (
-              <div key={event.id} className="border-b border-zinc-100 pb-3 last:border-b-0 last:pb-0">
+              <div key={event.id} className="border-b border-zinc-100 pb-3 last:border-b-0 last:pb-0 dark:border-zinc-700">
                 <p className="font-semibold">{event.title}</p>
                 <p className="text-sm text-zinc-500">
                   {new Date(event.event_at).toLocaleString("he-IL", {
@@ -131,7 +131,7 @@ export default function CalendarView({
                   })}
                 </p>
                 {event.description && (
-                  <p className="mt-1 text-sm text-zinc-600">{event.description}</p>
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{event.description}</p>
                 )}
                 <p className="mt-1 text-xs text-zinc-400">
                   רלוונטי ל:{" "}

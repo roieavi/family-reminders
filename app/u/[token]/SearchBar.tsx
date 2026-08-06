@@ -31,7 +31,7 @@ export default function SearchBar({ token }: { token: string }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <div className="flex gap-2">
         <input
-          className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-zinc-700 dark:bg-zinc-800"
           placeholder="שאל, למשל: מתי התור שלי לרופא?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
@@ -45,7 +45,7 @@ export default function SearchBar({ token }: { token: string }) {
         </button>
       </div>
       {answer && (
-        <p className="rounded-xl border border-zinc-200 bg-white p-3 text-sm shadow-sm">{answer}</p>
+        <p className="rounded-xl border border-zinc-200 bg-white p-3 text-sm shadow-sm dark:border-zinc-700 dark:bg-zinc-800">{answer}</p>
       )}
     </form>
   );

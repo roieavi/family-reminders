@@ -54,7 +54,7 @@ export default function GridView({
                 ✕
               </button>
             </div>
-            <p className="line-clamp-2 text-sm font-semibold">{event.title}</p>
+            <p className="line-clamp-2 text-sm font-semibold text-zinc-900">{event.title}</p>
             <p className="text-xs text-zinc-600">
               {new Date(event.event_at).toLocaleString("he-IL", {
                 dateStyle: "short",
@@ -67,7 +67,7 @@ export default function GridView({
                 <Avatar key={m.id} name={m.name} color={colorForMember(members, m.id)} size="sm" ring />
               ))}
               {relevantMembers.length > 3 && (
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[10px] font-semibold ring-2 ring-white">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-zinc-900 ring-2 ring-white">
                   +{relevantMembers.length - 3}
                 </span>
               )}
