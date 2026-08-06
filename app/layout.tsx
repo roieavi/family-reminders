@@ -8,8 +8,8 @@ const heebo = Heebo({
 });
 
 export const metadata: Metadata = {
-  title: "תזכורות המשפחה",
-  description: "מערכת תזכורות ומועדים לבני הבית",
+  title: "תזכיר לי",
+  description: "מישהו צריך לזכור את זה",
 };
 
 export default function RootLayout({

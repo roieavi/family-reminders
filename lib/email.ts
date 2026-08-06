@@ -24,7 +24,7 @@ function buildReminderEmailHtml({ eventTitle, eventTime, description }: Reminder
     <p style="margin:0;font-size:15px;color:#3f3f46;">${escapeHtml(eventTime)}</p>
     ${description ? `<p style="margin:16px 0 0;font-size:14px;color:#52525b;white-space:pre-wrap;">${escapeHtml(description)}</p>` : ""}
   </div>
-  <p style="text-align:center;font-size:12px;color:#a1a1aa;margin-top:16px;">נשלח אוטומטית ממערכת התזכורות המשפחתית</p>
+  <p style="text-align:center;font-size:12px;color:#a1a1aa;margin-top:16px;">נשלח אוטומטית מ"תזכיר לי"</p>
 </div>`;
 }
 
@@ -34,7 +34,7 @@ export async function sendReminderEmail(
 ): Promise<boolean> {
   try {
     await resend.emails.send({
-      from: "תזכורות המשפחה <onboarding@resend.dev>",
+      from: "תזכיר לי <onboarding@resend.dev>",
       to,
       subject: `תזכורת: ${data.eventTitle}`,
       html: buildReminderEmailHtml(data),
