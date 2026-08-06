@@ -22,6 +22,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-heebo), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 @keyframes sheet-up {

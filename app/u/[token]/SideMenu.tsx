@@ -20,6 +20,7 @@ export default function SideMenu({
 
       <aside
         aria-hidden={!isOpen}
+        inert={!isOpen}
         className={`fixed inset-y-0 right-0 z-40 w-72 overflow-y-auto bg-white p-4 shadow-xl transition-transform duration-300 dark:bg-zinc-800 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
