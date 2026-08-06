@@ -596,7 +596,7 @@ export function EventForm({
         <button
           type="button"
           onClick={onCancel}
-          className="w-full py-1 text-sm font-semibold text-zinc-400 transition hover:text-zinc-600"
+          className="w-full py-1 text-sm font-semibold text-zinc-400 transition hover:text-zinc-600 dark:hover:text-zinc-200"
         >
           ביטול
         </button>
