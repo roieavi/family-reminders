@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { REMINDER_PRESETS } from "@/lib/reminders";
 import { MEMBER_TOKEN_KEY } from "@/lib/storage";
 import { toIsraelDateTimeParts } from "@/lib/israelTime";
-import { formatCountdown, countdownClasses } from "@/lib/countdown";
+import { formatCountdown } from "@/lib/countdown";
 import { colorForMember } from "@/lib/memberColors";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
 import CalendarView from "./CalendarView";
 import GridView from "./GridView";
 import Avatar from "./Avatar";
+import CountdownBadge from "./CountdownBadge";
 
 export { toIsraelDateTimeParts };
 
@@ -92,19 +93,19 @@ export default function Dashboard({
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pb-8">
-      <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-6 pb-14 text-white">
+      <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-10 pb-20 text-white">
         <div className="pointer-events-none absolute -top-10 -left-8 h-32 w-32 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute top-14 -right-6 h-20 w-20 rounded-full bg-white/10" />
         <div className="relative flex items-center justify-between">
-          <h1 className="text-xl font-bold">שלום {memberName} 👋</h1>
+          <h1 className="text-3xl font-extrabold">שלום {memberName} 👋</h1>
           <PushSubscribeButton token={token} />
         </div>
       </header>
 
-      <div className="relative z-10 -mt-10 rounded-2xl bg-white p-4 shadow-lg">
+      <div className="relative z-10 -mt-12 rounded-2xl bg-white p-4 shadow-lg">
         <p className="text-xs font-semibold text-zinc-400">האירוע הקרוב</p>
         {nextEvent ? (
-          <div className="mt-1 flex items-center justify-between gap-2">
+          <div className="mt-1 flex items-center justify-between gap-3">
             <div>
               <p className="font-semibold">{nextEvent.title}</p>
               <p className="text-sm text-zinc-500">
@@ -115,11 +116,7 @@ export default function Dashboard({
                 })}
               </p>
             </div>
-            <span
-              className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${countdownClasses(formatCountdown(nextEvent.event_at).tone)}`}
-            >
-              {formatCountdown(nextEvent.event_at).label}
-            </span>
+            <CountdownBadge countdown={formatCountdown(nextEvent.event_at)} size="lg" />
           </div>
         ) : (
           <p className="mt-1 text-sm text-zinc-400">אין מועדים קרובים</p>
@@ -254,14 +251,9 @@ export default function Dashboard({
                 </li>
               ) : (
                 <li key={event.id} className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${countdownClasses(countdown.tone)}`}
-                      >
-                        {countdown.label}
-                      </span>
-                      <p className="mt-1 font-semibold">{event.title}</p>
+                      <p className="font-semibold">{event.title}</p>
                       <p className="text-sm text-zinc-500">
                         {new Date(event.event_at).toLocaleString("he-IL", {
                           dateStyle: "medium",
@@ -281,16 +273,19 @@ export default function Dashboard({
                         </p>
                       )}
                     </div>
-                    <div className="flex shrink-0 -space-x-2">
-                      {event.applies_to_all ? (
-                        <span className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500">
-                          כולם
-                        </span>
-                      ) : (
-                        relevantMembers.map((m) => (
-                          <Avatar key={m.id} name={m.name} color={colorForMember(members, m.id)} size="sm" ring />
-                        ))
-                      )}
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <CountdownBadge countdown={countdown} size="sm" />
+                      <div className="flex -space-x-2">
+                        {event.applies_to_all ? (
+                          <span className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500">
+                            כולם
+                          </span>
+                        ) : (
+                          relevantMembers.map((m) => (
+                            <Avatar key={m.id} name={m.name} color={colorForMember(members, m.id)} size="sm" ring />
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="mt-3 flex justify-end gap-3">

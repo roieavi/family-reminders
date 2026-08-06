@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import Avatar from "./Avatar";
+import CountdownBadge from "./CountdownBadge";
 import { colorForMember } from "@/lib/memberColors";
-import { formatCountdown, countdownClasses } from "@/lib/countdown";
+import { formatCountdown } from "@/lib/countdown";
 import { EventForm, type EventItem, type MemberSummary } from "./Dashboard";
 
 export default function GridView({
@@ -41,11 +42,7 @@ export default function GridView({
             className={`flex cursor-pointer flex-col gap-2 rounded-2xl p-4 ${cardColor}`}
           >
             <div className="flex items-start justify-between gap-1">
-              <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${countdownClasses(countdown.tone)}`}
-              >
-                {countdown.label}
-              </span>
+              <CountdownBadge countdown={countdown} size="sm" />
               <button
                 onClick={(e) => {
                   e.stopPropagation();
