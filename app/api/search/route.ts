@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   const now = new Date();
   const from = new Date(now);
-  from.setMonth(from.getMonth() - 1);
+  from.setFullYear(from.getFullYear() - 1);
   const to = new Date(now);
   to.setMonth(to.getMonth() + 6);
 

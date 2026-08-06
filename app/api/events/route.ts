@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       "id, title, description, event_at, applies_to_all, created_by, event_members(member_id), reminders(id, remind_at, sent)"
     )
     .eq("family_id", requester.family_id)
+    .gte("event_at", new Date().toISOString())
     .order("event_at");
 
   if (error) {
