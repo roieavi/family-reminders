@@ -1,14 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 
 export default function SideMenu({
+  token,
   children,
 }: {
+  token: string;
   children: (api: { open: () => void }) => React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const navLinkClass =
+    "flex items-center gap-2 rounded-xl border-2 border-black px-3 py-2.5 text-sm font-semibold transition hover:bg-indigo-50 dark:border-zinc-300 dark:hover:bg-zinc-700";
 
   return (
     <div className="relative overflow-x-hidden">
@@ -33,7 +39,19 @@ export default function SideMenu({
         >
           ✕
         </button>
-        <ThemeToggle />
+        <nav className="flex flex-col gap-2">
+          <Link href={`/u/${token}`} className={navLinkClass}>
+            <span aria-hidden="true">🏠</span>
+            לוח הבית
+          </Link>
+          <Link href={`/u/${token}/family`} className={navLinkClass}>
+            <span aria-hidden="true">👪</span>
+            בני המשפחה
+          </Link>
+        </nav>
+        <div className="mt-2">
+          <ThemeToggle />
+        </div>
       </aside>
 
       {isOpen && (

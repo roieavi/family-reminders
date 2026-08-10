@@ -101,7 +101,7 @@ export default function Dashboard({
   }
 
   return (
-    <SideMenu>
+    <SideMenu token={token}>
       {({ open }) => (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pb-8">
       <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-10 pb-20 text-white">
