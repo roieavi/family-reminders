@@ -40,11 +40,11 @@ export default function SideMenu({
           ✕
         </button>
         <nav className="flex flex-col gap-2">
-          <Link href={`/u/${token}`} className={navLinkClass}>
+          <Link href={`/u/${token}`} onClick={() => setIsOpen(false)} className={navLinkClass}>
             <span aria-hidden="true">🏠</span>
             לוח הבית
           </Link>
-          <Link href={`/u/${token}/family`} className={navLinkClass}>
+          <Link href={`/u/${token}/family`} onClick={() => setIsOpen(false)} className={navLinkClass}>
             <span aria-hidden="true">👪</span>
             בני המשפחה
           </Link>
