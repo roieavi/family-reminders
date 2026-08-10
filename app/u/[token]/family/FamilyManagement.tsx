@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { MEMBER_TOKEN_KEY } from "@/lib/storage";
 import SideMenu from "../SideMenu";
 import type { MemberSummary } from "../Dashboard";
 
@@ -29,6 +30,10 @@ export default function FamilyManagement({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load on mount
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    localStorage.setItem(MEMBER_TOKEN_KEY, token);
+  }, [token]);
 
   return (
     <SideMenu token={token}>
