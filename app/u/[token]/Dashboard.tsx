@@ -6,6 +6,8 @@ import { MEMBER_TOKEN_KEY } from "@/lib/storage";
 import { toIsraelDateTimeParts, timeOfDayGreeting } from "@/lib/israelTime";
 import { formatCountdown } from "@/lib/countdown";
 import { colorForMember } from "@/lib/memberColors";
+import { type EventAttachment } from "@/lib/attachments";
+import { uploadAttachment } from "@/lib/uploadAttachment";
 import SearchBar from "./SearchBar";
 import PushSubscribeButton from "./PushSubscribeButton";
 import CalendarView from "./CalendarView";
@@ -15,6 +17,7 @@ import Avatar from "./Avatar";
 import CountdownBadge from "./CountdownBadge";
 import ToggleSwitch from "./ToggleSwitch";
 import SideMenu from "./SideMenu";
+import AttachmentsField from "./AttachmentsField";
 
 export { toIsraelDateTimeParts };
 
@@ -33,6 +36,7 @@ export interface EventItem {
   created_by: string;
   event_members: { member_id: string }[];
   reminders: { id: string; remind_at: string; sent: boolean }[];
+  event_attachments: EventAttachment[];
 }
 
 export default function Dashboard({
@@ -371,6 +375,7 @@ export function EventForm({
   onDone: () => void;
   onCancel: () => void;
 }) {
+  const token = headers["x-member-token"] ?? "";
   const initialDateTime = event ? toIsraelDateTimeParts(event.event_at) : null;
   const [title, setTitle] = useState(event?.title ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
@@ -386,6 +391,10 @@ export function EventForm({
   const [remindersEnabled, setRemindersEnabled] = useState(
     event ? event.reminders.length > 0 : false
   );
+  const [existingAttachments, setExistingAttachments] = useState<EventAttachment[]>(
+    event?.event_attachments ?? []
+  );
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -423,6 +432,21 @@ export function EventForm({
         setError(data.error ?? "שגיאה");
         return;
       }
+
+      const savedEventId = event ? event.id : data.event.id;
+      const remaining = [...pendingFiles];
+      while (remaining.length > 0) {
+        const file = remaining[0];
+        const result = await uploadAttachment(token, savedEventId, file);
+        if (result.error) {
+          setError(`המועד נשמר, אבל העלאת "${file.name}" נכשלה: ${result.error}`);
+          setPendingFiles(remaining);
+          return;
+        }
+        remaining.shift();
+      }
+      setPendingFiles([]);
+
       onDone();
     } finally {
       setSubmitting(false);
@@ -524,6 +548,15 @@ export function EventForm({
             ))}
         </div>
       </div>
+
+      <AttachmentsField
+        token={token}
+        eventId={event?.id ?? null}
+        existing={existingAttachments}
+        onExistingChange={setExistingAttachments}
+        pendingFiles={pendingFiles}
+        onPendingFilesChange={setPendingFiles}
+      />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
