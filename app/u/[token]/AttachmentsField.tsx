@@ -1,7 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { MAX_ATTACHMENTS_PER_EVENT, MAX_ATTACHMENT_SIZE_BYTES, type EventAttachment } from "@/lib/attachments";
+import {
+  MAX_ATTACHMENTS_PER_EVENT,
+  MAX_ATTACHMENT_SIZE_BYTES,
+  isAllowedAttachmentType,
+  type EventAttachment,
+} from "@/lib/attachments";
 
 export default function AttachmentsField({
   token,
@@ -34,6 +39,11 @@ export default function AttachmentsField({
     const tooBig = files.find((f) => f.size > MAX_ATTACHMENT_SIZE_BYTES);
     if (tooBig) {
       setError(`הקובץ "${tooBig.name}" גדול מדי (מקסימום 15MB)`);
+      return;
+    }
+    const notAllowed = files.find((f) => !isAllowedAttachmentType(f.type));
+    if (notAllowed) {
+      setError(`הקובץ "${notAllowed.name}" מסוג לא נתמך (רק תמונות ו-PDF)`);
       return;
     }
     onPendingFilesChange([...pendingFiles, ...files]);
