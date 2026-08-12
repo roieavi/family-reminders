@@ -395,6 +395,7 @@ export function EventForm({
     event?.event_attachments ?? []
   );
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [createdEventId, setCreatedEventId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -415,25 +416,51 @@ export function EventForm({
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(event ? `/api/events/${event.id}` : "/api/events", {
-        method: event ? "PATCH" : "POST",
-        headers,
-        body: JSON.stringify({
-          title,
-          description,
-          event_at: new Date(`${eventDate}T${eventTime}`).toISOString(),
-          applies_to_all: appliesToAll,
-          member_ids: selectedMembers,
-          reminder_minutes: remindersEnabled ? selectedReminders : [],
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "שגיאה");
-        return;
+      let savedEventId: string;
+
+      if (event) {
+        const res = await fetch(`/api/events/${event.id}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify({
+            title,
+            description,
+            event_at: new Date(`${eventDate}T${eventTime}`).toISOString(),
+            applies_to_all: appliesToAll,
+            member_ids: selectedMembers,
+            reminder_minutes: remindersEnabled ? selectedReminders : [],
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "שגיאה");
+          return;
+        }
+        savedEventId = event.id;
+      } else if (createdEventId) {
+        savedEventId = createdEventId;
+      } else {
+        const res = await fetch("/api/events", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            title,
+            description,
+            event_at: new Date(`${eventDate}T${eventTime}`).toISOString(),
+            applies_to_all: appliesToAll,
+            member_ids: selectedMembers,
+            reminder_minutes: remindersEnabled ? selectedReminders : [],
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "שגיאה");
+          return;
+        }
+        savedEventId = data.event.id;
+        setCreatedEventId(savedEventId);
       }
 
-      const savedEventId = event ? event.id : data.event.id;
       const remaining = [...pendingFiles];
       while (remaining.length > 0) {
         const file = remaining[0];
@@ -571,7 +598,8 @@ export function EventForm({
         <button
           type="button"
           onClick={onCancel}
-          className="w-full py-1 text-sm font-semibold text-zinc-400 transition hover:text-zinc-600 dark:hover:text-zinc-200"
+          disabled={submitting}
+          className="w-full py-1 text-sm font-semibold text-zinc-400 transition hover:text-zinc-600 dark:hover:text-zinc-200 disabled:opacity-50"
         >
           ביטול
         </button>
