@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getMemberFromRequest } from "@/lib/auth";
-import { isAllowedAttachmentType, MAX_ATTACHMENT_SIZE_BYTES } from "@/lib/attachments";
+import {
+  isAllowedAttachmentType,
+  MAX_ATTACHMENT_SIZE_BYTES,
+  MAX_ATTACHMENTS_PER_EVENT,
+} from "@/lib/attachments";
 
 export async function POST(
   req: NextRequest,
@@ -29,14 +33,30 @@ export async function POST(
   const contentType = String(body.contentType ?? "");
   const sizeBytes = Number(body.sizeBytes ?? 0);
 
+  // Note: this re-validates the *claimed* type/size, not what was actually
+  // uploaded to Storage - Supabase doesn't expose a simple way to verify
+  // that here. Acceptable for this app's threat model (trusted family
+  // members, private bucket), not a hard guarantee.
   if (
     !path ||
     !fileName ||
     !isAllowedAttachmentType(contentType) ||
     sizeBytes <= 0 ||
-    sizeBytes > MAX_ATTACHMENT_SIZE_BYTES
+    sizeBytes > MAX_ATTACHMENT_SIZE_BYTES ||
+    !path.startsWith(`${requester.family_id}/${eventId}/`)
   ) {
     return NextResponse.json({ error: "פרטי קובץ לא תקינים" }, { status: 400 });
+  }
+
+  const { count } = await supabaseAdmin
+    .from("event_attachments")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", eventId);
+  if ((count ?? 0) >= MAX_ATTACHMENTS_PER_EVENT) {
+    return NextResponse.json(
+      { error: `ניתן לצרף עד ${MAX_ATTACHMENTS_PER_EVENT} קבצים למועד` },
+      { status: 400 }
+    );
   }
 
   const { data: attachment, error } = await supabaseAdmin
