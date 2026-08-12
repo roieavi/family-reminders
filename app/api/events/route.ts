@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabaseAdmin
     .from("events")
     .select(
-      "id, title, description, event_at, applies_to_all, created_by, event_members(member_id), reminders(id, remind_at, sent)"
+      "id, title, description, event_at, applies_to_all, created_by, event_members(member_id), reminders(id, remind_at, sent), event_attachments(id, file_name, content_type, size_bytes)"
     )
     .eq("family_id", requester.family_id)
     .gte("event_at", new Date().toISOString())

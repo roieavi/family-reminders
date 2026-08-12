@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getMemberFromRequest } from "@/lib/auth";
 import { parseEventInput, setEventRelations } from "@/lib/events";
+import { ATTACHMENTS_BUCKET } from "@/lib/attachments";
 
 export async function PATCH(
   req: NextRequest,
@@ -52,6 +53,17 @@ export async function DELETE(
     return NextResponse.json({ error: "לינק לא תקין" }, { status: 401 });
   }
   const { id } = await params;
+
+  const { data: attachments } = await supabaseAdmin
+    .from("event_attachments")
+    .select("storage_path")
+    .eq("event_id", id);
+
+  if (attachments && attachments.length > 0) {
+    await supabaseAdmin.storage
+      .from(ATTACHMENTS_BUCKET)
+      .remove(attachments.map((a) => a.storage_path));
+  }
 
   const { error } = await supabaseAdmin
     .from("events")
