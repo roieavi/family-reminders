@@ -37,19 +37,26 @@ export default function AttachmentsButton({
   const [showList, setShowList] = useState(false);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (attachments.length === 0) return null;
 
   async function handleView(a: EventAttachment) {
     setBusyId(a.id);
+    setError(null);
     try {
       const url = await fetchSignedUrl(token, eventId, a.id, false);
-      if (!url) return;
+      if (!url) {
+        setError("שגיאה בטעינת הקובץ");
+        return;
+      }
       if (a.content_type.startsWith("image/")) {
         setLightbox({ src: url, alt: a.file_name });
       } else {
         window.open(url, "_blank", "noopener,noreferrer");
       }
+    } catch {
+      setError("שגיאה בטעינת הקובץ");
     } finally {
       setBusyId(null);
     }
@@ -57,13 +64,19 @@ export default function AttachmentsButton({
 
   async function handleDownload(a: EventAttachment) {
     setBusyId(a.id);
+    setError(null);
     try {
       const url = await fetchSignedUrl(token, eventId, a.id, true);
-      if (!url) return;
+      if (!url) {
+        setError("שגיאה בהורדת הקובץ");
+        return;
+      }
       const link = document.createElement("a");
       link.href = url;
       link.download = a.file_name;
       link.click();
+    } catch {
+      setError("שגיאה בהורדת הקובץ");
     } finally {
       setBusyId(null);
     }
@@ -71,17 +84,29 @@ export default function AttachmentsButton({
 
   async function handleShare(a: EventAttachment) {
     setBusyId(a.id);
+    setError(null);
     try {
       const url = await fetchSignedUrl(token, eventId, a.id, false);
-      if (!url) return;
+      if (!url) {
+        setError("שגיאה בשיתוף הקובץ");
+        return;
+      }
       const res = await fetch(url);
+      if (!res.ok) {
+        setError("שגיאה בשיתוף הקובץ");
+        return;
+      }
       const blob = await res.blob();
       const file = new File([blob], a.file_name, { type: a.content_type });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: a.file_name });
       }
-    } catch {
-      // user cancelled the native share sheet, or sharing failed - nothing to show
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        // user cancelled the native share sheet - nothing to show
+      } else {
+        setError("שגיאה בשיתוף הקובץ");
+      }
     } finally {
       setBusyId(null);
     }
@@ -95,6 +120,7 @@ export default function AttachmentsButton({
       <button
         type="button"
         onClick={() => setShowList(true)}
+        aria-label={`קבצים מצורפים (${attachments.length})`}
         className="flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500 transition hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
       >
         📎 {attachments.length}
@@ -102,6 +128,7 @@ export default function AttachmentsButton({
 
       {showList && (
         <Modal onClose={() => setShowList(false)} title="קבצים מצורפים">
+          {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
           <ul className="flex flex-col gap-2">
             {attachments.map((a) => (
               <li
