@@ -18,6 +18,7 @@ import CountdownBadge from "./CountdownBadge";
 import ToggleSwitch from "./ToggleSwitch";
 import SideMenu from "./SideMenu";
 import AttachmentsField from "./AttachmentsField";
+import AttachmentsButton from "./AttachmentsButton";
 
 export { toIsraelDateTimeParts };
 
@@ -286,6 +287,13 @@ export default function Dashboard({
                             .join(", ")}
                         </p>
                       )}
+                      <div className="mt-1">
+                        <AttachmentsButton
+                          token={token}
+                          eventId={event.id}
+                          attachments={event.event_attachments}
+                        />
+                      </div>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
                       <CountdownBadge countdown={countdown} size="sm" />

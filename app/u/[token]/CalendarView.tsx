@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Modal from "./Modal";
+import AttachmentsButton from "./AttachmentsButton";
 import {
   EventForm,
   reminderLabel,
@@ -27,6 +28,7 @@ export default function CalendarView({
   headers: Record<string, string>;
   onRefresh: () => void;
 }) {
+  const token = headers["x-member-token"] ?? "";
   const todayKey = toIsraelDateTimeParts(new Date().toISOString()).date;
   const [todayYear, todayMonth] = todayKey.split("-").map(Number);
   const [year, setYear] = useState(todayYear);
@@ -146,6 +148,15 @@ export default function CalendarView({
                       .map((r) => reminderLabel(event.event_at, r.remind_at))
                       .join(", ")}
                   </p>
+                )}
+                {event.event_attachments.length > 0 && (
+                  <div className="mt-1">
+                    <AttachmentsButton
+                      token={token}
+                      eventId={event.id}
+                      attachments={event.event_attachments}
+                    />
+                  </div>
                 )}
               </div>
             ))}

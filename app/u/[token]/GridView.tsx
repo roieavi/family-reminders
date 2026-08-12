@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal from "./Modal";
 import Avatar from "./Avatar";
 import CountdownBadge from "./CountdownBadge";
+import AttachmentsButton from "./AttachmentsButton";
 import { colorForMember } from "@/lib/memberColors";
 import { formatCountdown } from "@/lib/countdown";
 import { EventForm, type EventItem, type MemberSummary } from "./Dashboard";
@@ -21,6 +22,7 @@ export default function GridView({
   onRefresh: () => void;
   onDelete: (id: string) => void;
 }) {
+  const token = headers["x-member-token"] ?? "";
   const [editingId, setEditingId] = useState<string | null>(null);
   const editingEvent = events.find((e) => e.id === editingId) ?? null;
 
@@ -62,6 +64,15 @@ export default function GridView({
                 timeZone: "Asia/Jerusalem",
               })}
             </p>
+            {event.event_attachments.length > 0 && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <AttachmentsButton
+                  token={token}
+                  eventId={event.id}
+                  attachments={event.event_attachments}
+                />
+              </div>
+            )}
             <div className="mt-1 flex -space-x-2">
               {relevantMembers.slice(0, 3).map((m) => (
                 <Avatar key={m.id} name={m.name} color={colorForMember(members, m.id)} size="sm" ring />
