@@ -54,6 +54,16 @@ export async function DELETE(
   }
   const { id } = await params;
 
+  const { data: event } = await supabaseAdmin
+    .from("events")
+    .select("id")
+    .eq("id", id)
+    .eq("family_id", requester.family_id)
+    .maybeSingle();
+  if (!event) {
+    return NextResponse.json({ error: "מועד לא נמצא" }, { status: 404 });
+  }
+
   const { data: attachments } = await supabaseAdmin
     .from("event_attachments")
     .select("storage_path")
