@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "./supabase";
-import { Member } from "./types";
+import { Member, Family } from "./types";
 
 export const TOKEN_HEADER = "x-member-token";
 
@@ -17,4 +17,13 @@ export async function getMemberByToken(token: string): Promise<Member | null> {
     .eq("token", token)
     .maybeSingle();
   return data as Member | null;
+}
+
+export async function getFamilyByDashboardToken(token: string): Promise<Family | null> {
+  const { data } = await supabaseAdmin
+    .from("families")
+    .select("*")
+    .eq("dashboard_token", token)
+    .maybeSingle();
+  return data as Family | null;
 }
