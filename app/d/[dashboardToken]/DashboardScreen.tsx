@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { colorForMember, initials } from "@/lib/memberColors";
+import { colorForMember } from "@/lib/memberColors";
 import { formatHebrewDate } from "@/lib/hebrewDate";
 
 interface DashboardMember {
@@ -14,12 +14,14 @@ interface DashboardEvent {
   title: string;
   event_at: string;
   applies_to_all: boolean;
+  owner_member_id: string | null;
   event_members: { member_id: string }[];
 }
 
 interface DashboardChore {
   id: string;
   title: string;
+  scheduled_time: string | null;
   chore_members: { member_id: string }[];
   completed_member_ids: string[];
 }
@@ -134,17 +136,23 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
 
       <div className="grid flex-1 grid-cols-2 gap-4 overflow-hidden p-4">
         <section className="overflow-y-auto rounded-2xl bg-white p-4 shadow dark:bg-zinc-800">
-          <h2 className="mb-3 text-xl font-bold">לו״ז היום</h2>
+          <h2 className="mb-3 text-xl font-bold">אירועים להיום</h2>
           {data.events.length === 0 ? (
             <p className="text-zinc-400">אין אירועים היום</p>
           ) : (
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-2">
               {data.events.map((event) => {
-                const relevantMembers = event.applies_to_all
-                  ? data.members
-                  : data.members.filter((m) => event.event_members.some((em) => em.member_id === m.id));
+                const owner = event.owner_member_id
+                  ? data.members.find((m) => m.id === event.owner_member_id)
+                  : null;
+                const color = owner ? colorForMember(data.members, owner.id) : null;
                 return (
-                  <li key={event.id} className="flex items-center gap-3">
+                  <li
+                    key={event.id}
+                    className={`flex items-center gap-3 rounded-xl border-r-4 p-3 ${
+                      color ? `${color.light} ${color.border}` : "border-zinc-300 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700"
+                    }`}
+                  >
                     <span className="w-14 shrink-0 font-mono text-lg" dir="ltr">
                       {new Date(event.event_at).toLocaleTimeString("he-IL", {
                         hour: "2-digit",
@@ -152,14 +160,10 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
                         timeZone: "Asia/Jerusalem",
                       })}
                     </span>
-                    {relevantMembers.map((m) => (
-                      <span
-                        key={m.id}
-                        className={`h-3 w-3 shrink-0 rounded-full ${colorForMember(data.members, m.id).bg}`}
-                        title={m.name}
-                      />
-                    ))}
-                    <span className="text-lg">{event.title}</span>
+                    <span className="flex-1 text-lg">{event.title}</span>
+                    <span className={`text-sm font-semibold ${color ? color.text : "text-zinc-400"}`}>
+                      {owner ? owner.name : "כולם"}
+                    </span>
                   </li>
                 );
               })}
@@ -168,36 +172,55 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
         </section>
 
         <section className="overflow-y-auto rounded-2xl bg-white p-4 shadow dark:bg-zinc-800">
-          <h2 className="mb-3 text-xl font-bold">תורנויות ומשימות</h2>
+          <h2 className="mb-3 text-xl font-bold">לו״ז ומשימות</h2>
           {data.chores.length === 0 ? (
             <p className="text-zinc-400">אין משימות היום</p>
           ) : (
-            <ul className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {data.chores.map((chore) => (
-                <li key={chore.id} className="flex items-center gap-2">
-                  <span className="flex-1 text-lg">{chore.title}</span>
-                  {chore.chore_members.map((cm) => {
-                    const member = data.members.find((m) => m.id === cm.member_id);
-                    if (!member) return null;
-                    const done = chore.completed_member_ids.includes(member.id);
-                    const color = colorForMember(data.members, member.id);
-                    return (
-                      <button
-                        key={member.id}
-                        onClick={() => toggleCompletion(chore.id, member.id)}
-                        aria-pressed={done}
-                        title={member.name}
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white transition ${color.bg} ${
-                          done ? "opacity-40" : ""
-                        }`}
-                      >
-                        {done ? "✓" : initials(member.name)}
-                      </button>
-                    );
-                  })}
-                </li>
+                <div
+                  key={chore.id}
+                  className="rounded-xl border border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-lg font-semibold">{chore.title}</span>
+                    {chore.scheduled_time && (
+                      <span className="shrink-0 text-sm text-zinc-400" dir="ltr">
+                        {chore.scheduled_time.slice(0, 5)}
+                      </span>
+                    )}
+                  </div>
+                  <ul className="mt-2 flex flex-col gap-1.5">
+                    {chore.chore_members.map((cm) => {
+                      const member = data.members.find((m) => m.id === cm.member_id);
+                      if (!member) return null;
+                      const done = chore.completed_member_ids.includes(member.id);
+                      return (
+                        <li key={member.id}>
+                          <button
+                            onClick={() => toggleCompletion(chore.id, member.id)}
+                            aria-pressed={done}
+                            className="flex w-full items-center gap-2 text-right"
+                          >
+                            <span
+                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 text-sm text-white transition ${
+                                done ? "border-emerald-500 bg-emerald-500" : "border-zinc-300 dark:border-zinc-600"
+                              }`}
+                              aria-hidden="true"
+                            >
+                              {done && "✓"}
+                            </span>
+                            <span className={`text-base ${done ? "text-zinc-400 line-through" : ""}`}>
+                              {member.name}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </section>
       </div>
