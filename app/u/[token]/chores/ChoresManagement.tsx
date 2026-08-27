@@ -12,6 +12,7 @@ interface ChoreItem {
   title: string;
   recurrence: "daily" | "once";
   once_date: string | null;
+  scheduled_time: string | null;
   chore_members: { member_id: string }[];
   completed_member_ids: string[];
 }
@@ -259,6 +260,7 @@ function ChoreForm({
   const [title, setTitle] = useState(chore?.title ?? "");
   const [recurrence, setRecurrence] = useState<"daily" | "once">(chore?.recurrence ?? "daily");
   const [onceDate, setOnceDate] = useState(chore?.once_date ?? "");
+  const [scheduledTime, setScheduledTime] = useState(chore?.scheduled_time?.slice(0, 5) ?? "");
   const [selectedMembers, setSelectedMembers] = useState<string[]>(
     chore ? chore.chore_members.map((cm) => cm.member_id) : []
   );
@@ -278,6 +280,7 @@ function ChoreForm({
         title,
         recurrence,
         once_date: recurrence === "once" ? onceDate : null,
+        scheduled_time: scheduledTime || null,
         member_ids: selectedMembers,
       });
       const res = await fetch(chore ? `/api/chores/${chore.id}` : "/api/chores", {
@@ -310,6 +313,16 @@ function ChoreForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className={fieldLabel}>שעת ביצוע (אופציונלי)</span>
+        <input
+          type="time"
+          className={fieldInput}
+          value={scheduledTime}
+          onChange={(e) => setScheduledTime(e.target.value)}
         />
       </label>
 
