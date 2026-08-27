@@ -47,14 +47,19 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
   const [now, setNow] = useState(new Date());
 
   const refresh = useCallback(async () => {
-    const res = await fetch(`/api/dashboard/${dashboardToken}`);
-    if (res.status === 401) {
-      setInvalid(true);
-      return;
+    try {
+      const res = await fetch(`/api/dashboard/${dashboardToken}`);
+      if (res.status === 401) {
+        setInvalid(true);
+        return;
+      }
+      if (!res.ok) return;
+      const json = await res.json();
+      setData(json);
+    } catch {
+      // Transient network failure (e.g. tablet WiFi blip) — skip this
+      // cycle silently, the next poll will retry automatically.
     }
-    if (!res.ok) return;
-    const json = await res.json();
-    setData(json);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dashboardToken]);
 
@@ -71,12 +76,18 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
   }, []);
 
   async function toggleCompletion(choreId: string, memberId: string) {
-    await fetch(`/api/dashboard/${dashboardToken}/chores/${choreId}/completions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ member_id: memberId }),
-    });
-    refresh();
+    try {
+      await fetch(`/api/dashboard/${dashboardToken}/chores/${choreId}/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ member_id: memberId }),
+      });
+    } catch {
+      // Ignore — refresh() below reconciles with the true server state
+      // regardless of whether the toggle request itself succeeded.
+    } finally {
+      refresh();
+    }
   }
 
   if (invalid) {
