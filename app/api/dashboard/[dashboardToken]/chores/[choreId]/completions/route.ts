@@ -29,6 +29,16 @@ export async function POST(
     return NextResponse.json({ error: "משימה לא נמצאה" }, { status: 404 });
   }
 
+  const { data: member } = await supabaseAdmin
+    .from("members")
+    .select("id")
+    .eq("id", memberId)
+    .eq("family_id", family.id)
+    .maybeSingle();
+  if (!member) {
+    return NextResponse.json({ error: "בן משפחה לא נמצא" }, { status: 404 });
+  }
+
   const today = todayIsraelDate();
   const { data: existing } = await supabaseAdmin
     .from("chore_completions")
