@@ -251,7 +251,7 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
         <div className="overflow-hidden whitespace-nowrap border-t border-zinc-200 bg-white py-3 dark:border-zinc-700 dark:bg-zinc-800">
           <div className="animate-marquee inline-block">
             {data.notes.map((note) => (
-              <span key={note.id} className="mx-8 text-lg">
+              <span key={note.id} className="mx-12 text-lg">
                 📌 {note.text}
               </span>
             ))}
