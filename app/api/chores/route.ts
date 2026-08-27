@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const { data: chores, error } = await supabaseAdmin
     .from("chores")
-    .select("id, title, recurrence, once_date, active, chore_members(member_id)")
+    .select("id, title, recurrence, once_date, scheduled_time, active, chore_members(member_id)")
     .eq("family_id", requester.family_id)
     .eq("active", true)
     .order("created_at");
@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
       title: input.title,
       recurrence: input.recurrence,
       once_date: input.onceDate,
+      scheduled_time: input.scheduledTime,
       created_by: requester.id,
     })
     .select()

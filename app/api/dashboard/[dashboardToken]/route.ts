@@ -20,12 +20,12 @@ export async function GET(
     supabaseAdmin.from("members").select("id, name").eq("family_id", family.id).order("name"),
     supabaseAdmin
       .from("events")
-      .select("id, title, event_at, applies_to_all, event_members(member_id)")
+      .select("id, title, event_at, applies_to_all, owner_member_id, event_members(member_id)")
       .eq("family_id", family.id)
       .order("event_at"),
     supabaseAdmin
       .from("chores")
-      .select("id, title, recurrence, once_date, chore_members(member_id)")
+      .select("id, title, recurrence, once_date, scheduled_time, chore_members(member_id)")
       .eq("family_id", family.id)
       .eq("active", true),
   ]);

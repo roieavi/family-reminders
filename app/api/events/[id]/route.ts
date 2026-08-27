@@ -26,6 +26,7 @@ export async function PATCH(
       description: input.description,
       event_at: input.eventAt,
       applies_to_all: input.appliesToAll,
+      owner_member_id: input.ownerMemberId,
     })
     .eq("id", id)
     .eq("family_id", requester.family_id)

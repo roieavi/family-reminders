@@ -24,6 +24,7 @@ export async function PATCH(
       title: input.title,
       recurrence: input.recurrence,
       once_date: input.onceDate,
+      scheduled_time: input.scheduledTime,
     })
     .eq("id", id)
     .eq("family_id", requester.family_id)
