@@ -64,15 +64,19 @@ body {
   animation: fade-in 0.3s ease-out;
 }
 
+/* translateX(±100%) is relative to the *element's own* width, not the
+   viewport — for a short note that's only a small on-screen distance, so it
+   looked like it started stuck in the middle and crawled. Using vw units
+   ties the travel distance to the actual screen width instead. */
 @keyframes marquee {
   from {
-    transform: translateX(-100%);
+    transform: translateX(-100vw);
   }
   to {
-    transform: translateX(100%);
+    transform: translateX(100vw);
   }
 }
 
 .animate-marquee {
-  animation: marquee 25s linear infinite;
+  animation: marquee 20s linear infinite;
 }

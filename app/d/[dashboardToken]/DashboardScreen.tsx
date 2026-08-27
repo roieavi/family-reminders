@@ -118,6 +118,31 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
   });
   const hebrewDate = formatHebrewDate(now);
 
+  // Flatten chores into one row per assigned member (each has its own
+  // completion state), sorted with untimed chores first and timed ones
+  // after in ascending order — matching the events list's time-sorted feel.
+  const choreRows = data.chores
+    .flatMap((chore) =>
+      chore.chore_members
+        .map((cm) => data.members.find((m) => m.id === cm.member_id))
+        .filter((member): member is DashboardMember => Boolean(member))
+        .map((member) => ({
+          key: `${chore.id}-${member.id}`,
+          choreId: chore.id,
+          memberId: member.id,
+          memberName: member.name,
+          title: chore.title,
+          scheduledTime: chore.scheduled_time,
+          done: chore.completed_member_ids.includes(member.id),
+        }))
+    )
+    .sort((a, b) => {
+      if (!a.scheduledTime && !b.scheduledTime) return 0;
+      if (!a.scheduledTime) return -1;
+      if (!b.scheduledTime) return 1;
+      return a.scheduledTime.localeCompare(b.scheduledTime);
+    });
+
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-zinc-50 dark:bg-zinc-900">
       <header className="flex items-center justify-between gap-4 bg-gradient-to-l from-indigo-500 to-violet-600 px-8 py-4 text-white">
@@ -146,22 +171,30 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
                   ? data.members.find((m) => m.id === event.owner_member_id)
                   : null;
                 const color = owner ? colorForMember(data.members, owner.id) : null;
+                const isPast = new Date(event.event_at) < now;
                 return (
                   <li
                     key={event.id}
-                    className={`flex items-center gap-3 rounded-xl border-r-4 p-3 ${
+                    className={`flex items-center gap-3 rounded-xl border-r-4 p-3 transition ${
                       color ? `${color.light} ${color.border}` : "border-zinc-300 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700"
-                    }`}
+                    } ${isPast ? "opacity-50" : ""}`}
                   >
-                    <span className="w-14 shrink-0 font-mono text-lg" dir="ltr">
+                    <span
+                      className={`w-14 shrink-0 font-mono text-lg ${isPast ? "line-through" : ""}`}
+                      dir="ltr"
+                    >
                       {new Date(event.event_at).toLocaleTimeString("he-IL", {
                         hour: "2-digit",
                         minute: "2-digit",
                         timeZone: "Asia/Jerusalem",
                       })}
                     </span>
-                    <span className="flex-1 text-lg">{event.title}</span>
-                    <span className={`text-sm font-semibold ${color ? color.text : "text-zinc-400"}`}>
+                    <span className={`flex-1 text-lg ${isPast ? "line-through" : ""}`}>{event.title}</span>
+                    <span
+                      className={`text-sm font-semibold ${color ? color.text : "text-zinc-400"} ${
+                        isPast ? "line-through" : ""
+                      }`}
+                    >
                       {owner ? owner.name : "כולם"}
                     </span>
                   </li>
@@ -173,54 +206,43 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
 
         <section className="overflow-y-auto rounded-2xl bg-white p-4 shadow dark:bg-zinc-800">
           <h2 className="mb-3 text-xl font-bold">לו״ז ומשימות</h2>
-          {data.chores.length === 0 ? (
+          {choreRows.length === 0 ? (
             <p className="text-zinc-400">אין משימות היום</p>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {data.chores.map((chore) => (
-                <div
-                  key={chore.id}
-                  className="rounded-xl border border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-lg font-semibold">{chore.title}</span>
-                    {chore.scheduled_time && (
-                      <span className="shrink-0 text-sm text-zinc-400" dir="ltr">
-                        {chore.scheduled_time.slice(0, 5)}
-                      </span>
-                    )}
-                  </div>
-                  <ul className="mt-2 flex flex-col gap-1.5">
-                    {chore.chore_members.map((cm) => {
-                      const member = data.members.find((m) => m.id === cm.member_id);
-                      if (!member) return null;
-                      const done = chore.completed_member_ids.includes(member.id);
-                      return (
-                        <li key={member.id}>
-                          <button
-                            onClick={() => toggleCompletion(chore.id, member.id)}
-                            aria-pressed={done}
-                            className="flex w-full items-center gap-2 text-right"
-                          >
-                            <span
-                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 text-sm text-white transition ${
-                                done ? "border-emerald-500 bg-emerald-500" : "border-zinc-300 dark:border-zinc-600"
-                              }`}
-                              aria-hidden="true"
-                            >
-                              {done && "✓"}
-                            </span>
-                            <span className={`text-base ${done ? "text-zinc-400 line-through" : ""}`}>
-                              {member.name}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
+            <ul className="flex flex-col gap-2">
+              {choreRows.map((row) => (
+                <li key={row.key}>
+                  <button
+                    onClick={() => toggleCompletion(row.choreId, row.memberId)}
+                    aria-pressed={row.done}
+                    className="flex w-full items-center gap-3 rounded-xl border border-zinc-100 p-3 text-right transition dark:border-zinc-700"
+                  >
+                    <span
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 text-sm text-white transition ${
+                        row.done ? "border-emerald-500 bg-emerald-500" : "border-zinc-300 dark:border-zinc-600"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {row.done && "✓"}
+                    </span>
+                    <span
+                      className={`w-14 shrink-0 font-mono text-lg ${row.done ? "line-through" : ""}`}
+                      dir="ltr"
+                    >
+                      {row.scheduledTime ? row.scheduledTime.slice(0, 5) : ""}
+                    </span>
+                    <span className={`flex-1 text-lg ${row.done ? "text-zinc-400 line-through" : ""}`}>
+                      {row.title}
+                    </span>
+                    <span
+                      className={`text-sm font-semibold ${row.done ? "text-zinc-400 line-through" : ""}`}
+                    >
+                      {row.memberName}
+                    </span>
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
       </div>
