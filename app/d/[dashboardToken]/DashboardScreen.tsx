@@ -116,6 +116,30 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
   }, []);
 
   async function toggleCompletion(choreId: string, memberId: string) {
+    // Optimistic update: flip the checkbox immediately in local state so the
+    // tap feels instant, instead of waiting for the POST to resolve and then
+    // a full dashboard refetch (which was the actual source of the lag —
+    // two sequential network round-trips, each a separate serverless
+    // function on Vercel, before anything visibly changed). The next
+    // scheduled poll (or the background POST below) reconciles with the
+    // server's true state if this ever drifts.
+    setData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        chores: prev.chores.map((c) =>
+          c.id === choreId
+            ? {
+                ...c,
+                completed_member_ids: c.completed_member_ids.includes(memberId)
+                  ? c.completed_member_ids.filter((id) => id !== memberId)
+                  : [...c.completed_member_ids, memberId],
+              }
+            : c
+        ),
+      };
+    });
+
     try {
       await fetch(`/api/dashboard/${dashboardToken}/chores/${choreId}/completions`, {
         method: "POST",
@@ -123,10 +147,8 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
         body: JSON.stringify({ member_id: memberId }),
       });
     } catch {
-      // Ignore — refresh() below reconciles with the true server state
-      // regardless of whether the toggle request itself succeeded.
-    } finally {
-      refresh();
+      // Ignore — the next scheduled poll reconciles with the true server
+      // state if this request silently failed.
     }
   }
 
