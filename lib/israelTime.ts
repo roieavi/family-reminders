@@ -20,3 +20,7 @@ export function timeOfDayGreeting(): string {
   if (hour >= 17 && hour < 21) return "ערב טוב";
   return "לילה טוב";
 }
+
+export function todayIsraelDate(): string {
+  return toIsraelDateTimeParts(new Date().toISOString()).date;
+}
