@@ -44,6 +44,10 @@ export default function SideMenu({
             <span aria-hidden="true">🏠</span>
             לוח הבית
           </Link>
+          <Link href={`/u/${token}/chores`} onClick={() => setIsOpen(false)} className={navLinkClass}>
+            <span aria-hidden="true">📋</span>
+            לו״ז יומי
+          </Link>
           <Link href={`/u/${token}/family`} onClick={() => setIsOpen(false)} className={navLinkClass}>
             <span aria-hidden="true">👪</span>
             בני המשפחה
