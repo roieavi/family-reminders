@@ -27,6 +27,44 @@ export interface ReminderRow {
   created_at: string;
 }
 
+export interface Family {
+  id: string;
+  name: string;
+  dashboard_token: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  location_label: string | null;
+  created_at: string;
+}
+
+export interface ChoreRow {
+  id: string;
+  family_id: string;
+  title: string;
+  recurrence: "daily" | "once";
+  once_date: string | null;
+  active: boolean;
+  created_by: string;
+  created_at: string;
+}
+
+export interface ChoreCompletionRow {
+  id: string;
+  chore_id: string;
+  member_id: string;
+  completion_date: string;
+  completed_at: string;
+}
+
+export interface StickyNoteRow {
+  id: string;
+  family_id: string;
+  member_id: string;
+  text: string;
+  note_date: string;
+  created_at: string;
+}
+
 export interface PushSubscriptionJSON {
   endpoint: string;
   keys: {
