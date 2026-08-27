@@ -34,6 +34,7 @@ export interface EventItem {
   description: string | null;
   event_at: string;
   applies_to_all: boolean;
+  owner_member_id: string | null;
   created_by: string;
   event_members: { member_id: string }[];
   reminders: { id: string; remind_at: string; sent: boolean }[];
@@ -399,6 +400,9 @@ export function EventForm({
   const [remindersEnabled, setRemindersEnabled] = useState(
     event ? event.reminders.length > 0 : false
   );
+  const [ownerMemberId, setOwnerMemberId] = useState<string | null>(
+    event?.owner_member_id ?? null
+  );
   const [existingAttachments, setExistingAttachments] = useState<EventAttachment[]>(
     event?.event_attachments ?? []
   );
@@ -437,6 +441,7 @@ export function EventForm({
             applies_to_all: appliesToAll,
             member_ids: selectedMembers,
             reminder_minutes: remindersEnabled ? selectedReminders : [],
+            owner_member_id: ownerMemberId,
           }),
         });
         const data = await res.json();
@@ -458,6 +463,7 @@ export function EventForm({
             applies_to_all: appliesToAll,
             member_ids: selectedMembers,
             reminder_minutes: remindersEnabled ? selectedReminders : [],
+            owner_member_id: ownerMemberId,
           }),
         });
         const data = await res.json();
@@ -558,6 +564,39 @@ export function EventForm({
                 />
               </div>
             ))}
+        </div>
+      </div>
+
+      <div>
+        <p className={`mb-1 ${fieldLabel}`}>משויך ל</p>
+        <div className="overflow-hidden rounded-xl border border-zinc-100 dark:border-zinc-700">
+          <button
+            type="button"
+            onClick={() => setOwnerMemberId(null)}
+            className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition ${
+              ownerMemberId === null
+                ? "bg-indigo-50 font-semibold text-indigo-600 dark:bg-indigo-950"
+                : ""
+            }`}
+          >
+            <span>כולם</span>
+            {ownerMemberId === null && <span aria-hidden="true">✓</span>}
+          </button>
+          {members.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setOwnerMemberId(m.id)}
+              className={`flex w-full items-center justify-between border-t border-zinc-100 px-3 py-2.5 text-sm transition dark:border-zinc-700 ${
+                ownerMemberId === m.id
+                  ? "bg-indigo-50 font-semibold text-indigo-600 dark:bg-indigo-950"
+                  : ""
+              }`}
+            >
+              <span>{m.name}</span>
+              {ownerMemberId === m.id && <span aria-hidden="true">✓</span>}
+            </button>
+          ))}
         </div>
       </div>
 
