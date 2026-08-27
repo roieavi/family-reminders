@@ -37,7 +37,10 @@ export default function EntryScreen({
   }, [token, router]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 overflow-y-auto bg-gradient-to-br from-indigo-600 to-violet-600 px-6 py-16">
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-16"
+      style={{ backgroundImage: "linear-gradient(to bottom right, #4f46e5, #7c3aed)" }}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-full-white.png" alt="תזכיר לי" className="w-48 shrink-0" />
       {showForm && (

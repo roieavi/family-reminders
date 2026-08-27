@@ -106,7 +106,10 @@ export default function Dashboard({
     <SideMenu token={token}>
       {({ open }) => (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pb-8">
-      <header className="relative -mx-4 overflow-hidden rounded-b-3xl bg-gradient-to-br from-indigo-500 to-violet-600 px-5 pt-10 pb-20 text-white">
+      <header
+        className="relative -mx-4 overflow-hidden rounded-b-3xl px-5 pt-10 pb-20 text-white"
+        style={{ backgroundImage: "linear-gradient(to bottom right, #6366f1, #7c3aed)" }}
+      >
         <div className="pointer-events-none absolute -top-10 -left-8 h-32 w-32 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute top-14 -right-6 h-20 w-20 rounded-full bg-white/10" />
         <div className="relative flex items-start justify-between">
@@ -638,7 +641,8 @@ export function EventForm({
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-full bg-gradient-to-l from-indigo-600 to-violet-600 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          className="w-full rounded-full py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          style={{ backgroundImage: "linear-gradient(to left, #4f46e5, #7c3aed)" }}
         >
           {submitting ? "שומר..." : "שמור מועד"}
         </button>

@@ -372,7 +372,8 @@ function ChoreForm({
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-full bg-gradient-to-l from-indigo-600 to-violet-600 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          className="w-full rounded-full py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          style={{ backgroundImage: "linear-gradient(to left, #4f46e5, #7c3aed)" }}
         >
           {submitting ? "שומר..." : "שמור משימה"}
         </button>
