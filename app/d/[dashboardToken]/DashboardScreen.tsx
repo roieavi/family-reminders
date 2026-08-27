@@ -60,7 +60,6 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
       // Transient network failure (e.g. tablet WiFi blip) — skip this
       // cycle silently, the next poll will retry automatically.
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dashboardToken]);
 
   useEffect(() => {
