@@ -36,9 +36,48 @@ interface DashboardData {
   family: { name: string; location_label: string | null };
   members: DashboardMember[];
   events: DashboardEvent[];
+  events_tomorrow: DashboardEvent[];
   chores: DashboardChore[];
   notes: DashboardNote[];
   weather: { temperatureC: number; icon: string; description: string } | null;
+}
+
+function EventRow({
+  event,
+  members,
+  isPast,
+}: {
+  event: DashboardEvent;
+  members: DashboardMember[];
+  isPast: boolean;
+}) {
+  const owner = event.owner_member_id
+    ? members.find((m) => m.id === event.owner_member_id)
+    : null;
+  const color = owner ? colorForMember(members, owner.id) : null;
+  return (
+    <li
+      className={`flex items-center gap-3 rounded-xl border-r-4 p-3 transition ${
+        color ? `${color.light} ${color.border}` : "border-zinc-300 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700"
+      } ${isPast ? "opacity-50" : ""}`}
+    >
+      <span className={`w-14 shrink-0 font-mono text-lg ${isPast ? "line-through" : ""}`} dir="ltr">
+        {new Date(event.event_at).toLocaleTimeString("he-IL", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Asia/Jerusalem",
+        })}
+      </span>
+      <span className={`flex-1 text-lg ${isPast ? "line-through" : ""}`}>{event.title}</span>
+      <span
+        className={`text-sm font-semibold ${color ? color.text : "text-zinc-400"} ${
+          isPast ? "line-through" : ""
+        }`}
+      >
+        {owner ? owner.name : "כולם"}
+      </span>
+    </li>
+  );
 }
 
 const DATA_REFRESH_MS = 60_000;
@@ -166,41 +205,26 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
             <p className="text-zinc-400">אין אירועים היום</p>
           ) : (
             <ul className="flex flex-col gap-2">
-              {data.events.map((event) => {
-                const owner = event.owner_member_id
-                  ? data.members.find((m) => m.id === event.owner_member_id)
-                  : null;
-                const color = owner ? colorForMember(data.members, owner.id) : null;
-                const isPast = new Date(event.event_at) < now;
-                return (
-                  <li
-                    key={event.id}
-                    className={`flex items-center gap-3 rounded-xl border-r-4 p-3 transition ${
-                      color ? `${color.light} ${color.border}` : "border-zinc-300 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700"
-                    } ${isPast ? "opacity-50" : ""}`}
-                  >
-                    <span
-                      className={`w-14 shrink-0 font-mono text-lg ${isPast ? "line-through" : ""}`}
-                      dir="ltr"
-                    >
-                      {new Date(event.event_at).toLocaleTimeString("he-IL", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        timeZone: "Asia/Jerusalem",
-                      })}
-                    </span>
-                    <span className={`flex-1 text-lg ${isPast ? "line-through" : ""}`}>{event.title}</span>
-                    <span
-                      className={`text-sm font-semibold ${color ? color.text : "text-zinc-400"} ${
-                        isPast ? "line-through" : ""
-                      }`}
-                    >
-                      {owner ? owner.name : "כולם"}
-                    </span>
-                  </li>
-                );
-              })}
+              {data.events.map((event) => (
+                <EventRow
+                  key={event.id}
+                  event={event}
+                  members={data.members}
+                  isPast={new Date(event.event_at) < now}
+                />
+              ))}
             </ul>
+          )}
+
+          {data.events_tomorrow.length > 0 && (
+            <>
+              <h3 className="mt-4 mb-2 text-sm font-semibold text-zinc-400">מחר</h3>
+              <ul className="flex flex-col gap-2">
+                {data.events_tomorrow.map((event) => (
+                  <EventRow key={event.id} event={event} members={data.members} isPast={false} />
+                ))}
+              </ul>
+            </>
           )}
         </section>
 

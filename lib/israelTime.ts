@@ -24,3 +24,8 @@ export function timeOfDayGreeting(): string {
 export function todayIsraelDate(): string {
   return toIsraelDateTimeParts(new Date().toISOString()).date;
 }
+
+export function tomorrowIsraelDate(): string {
+  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  return toIsraelDateTimeParts(tomorrow.toISOString()).date;
+}

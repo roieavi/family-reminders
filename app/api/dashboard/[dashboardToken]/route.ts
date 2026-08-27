@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getFamilyByDashboardToken } from "@/lib/auth";
-import { todayIsraelDate, toIsraelDateTimeParts } from "@/lib/israelTime";
+import { todayIsraelDate, tomorrowIsraelDate, toIsraelDateTimeParts } from "@/lib/israelTime";
 import { fetchWeather } from "@/lib/weather";
 
 export async function GET(
@@ -15,6 +15,7 @@ export async function GET(
   }
 
   const today = todayIsraelDate();
+  const tomorrow = tomorrowIsraelDate();
 
   const [membersRes, eventsRes, choresRes] = await Promise.all([
     supabaseAdmin.from("members").select("id, name").eq("family_id", family.id).order("name"),
@@ -36,6 +37,9 @@ export async function GET(
   // Israel is UTC+2 in winter).
   const todaysEvents = (eventsRes.data ?? []).filter(
     (e) => toIsraelDateTimeParts(e.event_at).date === today
+  );
+  const tomorrowsEvents = (eventsRes.data ?? []).filter(
+    (e) => toIsraelDateTimeParts(e.event_at).date === tomorrow
   );
 
   const todaysChores = (choresRes.data ?? []).filter(
@@ -75,6 +79,7 @@ export async function GET(
     family: { name: family.name, location_label: family.location_label },
     members: membersRes.data ?? [],
     events: todaysEvents,
+    events_tomorrow: tomorrowsEvents,
     chores,
     notes: notesRes.data ?? [],
     weather,
