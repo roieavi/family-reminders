@@ -206,7 +206,17 @@ export default function DashboardScreen({ dashboardToken }: { dashboardToken: st
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-zinc-50 dark:bg-zinc-900">
-      <header className="flex items-center justify-between gap-4 bg-gradient-to-l from-indigo-500 to-violet-600 px-8 py-4 text-white">
+      {/* Plain linear-gradient via an arbitrary value, not Tailwind's usual
+          bg-gradient-to, from, to utilities: those compile to
+          `linear-gradient(to left in oklab, ...)`, and the "in oklab"
+          color-interpolation syntax silently breaks the whole
+          background-image on older tablet WebViews (pre-Chrome 111ish),
+          leaving the header white. This kiosk runs unattended on exactly
+          that kind of device, so it needs the widely-supported syntax. */}
+      <header
+        className="flex items-center justify-between gap-4 px-8 py-4 text-white"
+        style={{ backgroundImage: "linear-gradient(to left, #6366f1, #7c3aed)" }}
+      >
         <span className="text-4xl font-extrabold" dir="ltr">
           {time}
         </span>
