@@ -2,12 +2,12 @@
 // Kept within the app's cool indigo/blue/violet family for color harmony,
 // rather than spanning into warm hues.
 export const MEMBER_COLORS = [
-  { bg: "bg-blue-500", light: "bg-blue-100", text: "text-blue-700", ring: "ring-blue-300" },
-  { bg: "bg-violet-500", light: "bg-violet-100", text: "text-violet-700", ring: "ring-violet-300" },
-  { bg: "bg-cyan-500", light: "bg-cyan-100", text: "text-cyan-700", ring: "ring-cyan-300" },
-  { bg: "bg-indigo-500", light: "bg-indigo-100", text: "text-indigo-700", ring: "ring-indigo-300" },
-  { bg: "bg-sky-500", light: "bg-sky-100", text: "text-sky-700", ring: "ring-sky-300" },
-  { bg: "bg-teal-500", light: "bg-teal-100", text: "text-teal-700", ring: "ring-teal-300" },
+  { bg: "bg-blue-500", light: "bg-blue-100", text: "text-blue-700", ring: "ring-blue-300", border: "border-blue-500" },
+  { bg: "bg-violet-500", light: "bg-violet-100", text: "text-violet-700", ring: "ring-violet-300", border: "border-violet-500" },
+  { bg: "bg-cyan-500", light: "bg-cyan-100", text: "text-cyan-700", ring: "ring-cyan-300", border: "border-cyan-500" },
+  { bg: "bg-indigo-500", light: "bg-indigo-100", text: "text-indigo-700", ring: "ring-indigo-300", border: "border-indigo-500" },
+  { bg: "bg-sky-500", light: "bg-sky-100", text: "text-sky-700", ring: "ring-sky-300", border: "border-sky-500" },
+  { bg: "bg-teal-500", light: "bg-teal-100", text: "text-teal-700", ring: "ring-teal-300", border: "border-teal-500" },
 ] as const;
 
 export type MemberColor = (typeof MEMBER_COLORS)[number];

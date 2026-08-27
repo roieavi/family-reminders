@@ -16,6 +16,7 @@ export interface EventRow {
   event_at: string;
   created_by: string;
   applies_to_all: boolean;
+  owner_member_id: string | null;
   created_at: string;
 }
 
@@ -43,6 +44,7 @@ export interface ChoreRow {
   title: string;
   recurrence: "daily" | "once";
   once_date: string | null;
+  scheduled_time: string | null;
   active: boolean;
   created_by: string;
   created_at: string;

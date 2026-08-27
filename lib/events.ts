@@ -8,6 +8,7 @@ export interface EventInput {
   appliesToAll: boolean;
   memberIds: string[];
   reminderMinutes: number[];
+  ownerMemberId: string | null;
 }
 
 export function parseEventInput(body: unknown): EventInput | { error: string } {
@@ -20,6 +21,8 @@ export function parseEventInput(body: unknown): EventInput | { error: string } {
   const reminderMinutes: number[] = Array.isArray(b.reminder_minutes)
     ? (b.reminder_minutes as number[])
     : [];
+  const ownerMemberId =
+    typeof b.owner_member_id === "string" && b.owner_member_id ? b.owner_member_id : null;
 
   if (!title || !eventAt) {
     return { error: "נדרשים כותרת ותאריך" };
@@ -28,7 +31,7 @@ export function parseEventInput(body: unknown): EventInput | { error: string } {
     return { error: "יש לבחור למי המועד רלוונטי, או לסמן 'כולם'" };
   }
 
-  return { title, description, eventAt, appliesToAll, memberIds, reminderMinutes };
+  return { title, description, eventAt, appliesToAll, memberIds, reminderMinutes, ownerMemberId };
 }
 
 // Replaces an event's relevant-members and reminders with a fresh set,

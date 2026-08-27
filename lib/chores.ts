@@ -4,6 +4,7 @@ export interface ChoreInput {
   title: string;
   recurrence: "daily" | "once";
   onceDate: string | null;
+  scheduledTime: string | null;
   memberIds: string[];
 }
 
@@ -13,6 +14,8 @@ export function parseChoreInput(body: unknown): ChoreInput | { error: string } {
   const recurrence =
     b.recurrence === "once" ? "once" : b.recurrence === "daily" ? "daily" : null;
   const onceDate = typeof b.once_date === "string" && b.once_date ? b.once_date : null;
+  const scheduledTime =
+    typeof b.scheduled_time === "string" && b.scheduled_time ? b.scheduled_time : null;
   const memberIds: string[] = Array.isArray(b.member_ids) ? (b.member_ids as string[]) : [];
 
   if (!title) {
@@ -28,7 +31,7 @@ export function parseChoreInput(body: unknown): ChoreInput | { error: string } {
     return { error: "יש לבחור לפחות בן משפחה אחד" };
   }
 
-  return { title, recurrence, onceDate, memberIds };
+  return { title, recurrence, onceDate, scheduledTime, memberIds };
 }
 
 // Replaces a chore's assigned members with a fresh set, matching the fields
